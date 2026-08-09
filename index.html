@@ -70,8 +70,6 @@
             border-radius: 100px;
         }
 
-        /* ===== 移除咗 .mode-toggle 全部 ===== */
-
         .numbers-display {
             background: #fafaf7;
             border-radius: 24px;
@@ -446,13 +444,11 @@
 <div class="toast" id="toast"></div>
 
 <div class="container">
-    <!-- Header — badge 改為 version 1.0 -->
+    <!-- Header -->
     <div class="header">
         <h1><span>Mark 6</span></h1>
         <span class="badge">version 1.0</span>
     </div>
-
-    <!-- ===== 移除咗 Mode Toggle ===== -->
 
     <!-- Numbers — 6個波 -->
     <div class="numbers-display" id="numbersDisplay">
@@ -511,8 +507,9 @@
                 </div>
             </div>
             <div class="field">
-                <label>Google Sheet ID (optional)</label>
-                <input type="text" id="sheetId" placeholder="1A2B3C4D5E..." />
+                <!-- 改為 Webhook URL -->
+                <label>Google Sheet Webhook URL</label>
+                <input type="text" id="webhookUrl" placeholder="https://script.google.com/macros/s/..." />
             </div>
             <div class="field-row">
                 <div class="checkbox-field">
@@ -531,10 +528,6 @@
 </div>
 
 <script>
-    // ============================================================
-    // 核心邏輯 (無變動，淨係移除 mode toggle 相關 code)
-    // ============================================================
-
     let currentNumbers = [];
     let history = JSON.parse(localStorage.getItem('mark6_history') || '[]');
 
@@ -610,23 +603,62 @@
         });
     }
 
-    // ===== 確認購買 =====
-    function confirmPurchase() {
+    // ===== 確認購買並發送 Webhook =====
+    async function confirmPurchase() {
         if (currentNumbers.length === 0) {
             showToast('⚠️ 請先生成號碼');
             return;
         }
+
+        const now = new Date();
+        const localDate = now.toLocaleDateString('en-CA', { timeZone: 'Asia/Hong_Kong' }); // output YYYY-MM-DD
         const entry = {
             id: Date.now(),
-            date: new Date().toISOString().slice(0, 10),
+            date: localDate,
             numbers: currentNumbers.slice(),
             status: 'pending',
         };
+
+        // 1. 本機記錄
         history.unshift(entry);
         if (history.length > 100) history.pop();
         saveHistory();
         renderHistory();
-        showToast('✅ 已記錄：' + currentNumbers.map(n => formatNumber(n)).join(','));
+        
+        // 2. 獲取 API 設定
+        const settings = loadApiSettingsInternal();
+        const numbersStr = currentNumbers.map(n => formatNumber(n)).join(',');
+
+        if (settings.webhookUrl) {
+            document.getElementById('infoBadge').textContent = '⏳ 上傳至 Google Sheet 中...';
+            showToast('⏳ 正在同步資料...');
+            
+            try {
+                // 發送 POST Request
+                const response = await fetch(settings.webhookUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'text/plain;charset=utf-8', // 用 text/plain 避免 CORS Preflight 錯誤
+                    },
+                    body: JSON.stringify({
+                        purchased_date: localDate,
+                        numbers: numbersStr,
+                        status: 'Waiting'
+                    })
+                });
+
+                showToast('✅ 成功填入 Google Sheet');
+                document.getElementById('infoBadge').textContent = '✅ 已上傳：' + numbersStr;
+
+            } catch (error) {
+                console.error('Webhook 上傳失敗:', error);
+                showToast('❌ 填表失敗，請檢查 Webhook 網址');
+                document.getElementById('infoBadge').textContent = '❌ 上傳失敗';
+            }
+        } else {
+            showToast('✅ 已記錄到本機');
+            document.getElementById('infoBadge').textContent = '✅ 已儲存 (未設定自動填表)';
+        }
     }
 
     // ===== 查詢結果 =====
@@ -754,10 +786,10 @@
         const deepseekToken = document.getElementById('deepseekToken').value.trim();
         const pushToken = document.getElementById('pushToken').value.trim();
         const pushUser = document.getElementById('pushUser').value.trim();
-        const sheetId = document.getElementById('sheetId').value.trim();
+        const webhookUrl = document.getElementById('webhookUrl').value.trim();
         const autoCheck = document.getElementById('autoCheck').checked;
 
-        const settings = { deepseekToken, pushToken, pushUser, sheetId, autoCheck };
+        const settings = { deepseekToken, pushToken, pushUser, webhookUrl, autoCheck };
         localStorage.setItem('mark6_api_settings', JSON.stringify(settings));
         showToast('💾 設定已儲存');
     }
@@ -767,7 +799,7 @@
         document.getElementById('deepseekToken').value = settings.deepseekToken || '';
         document.getElementById('pushToken').value = settings.pushToken || '';
         document.getElementById('pushUser').value = settings.pushUser || '';
-        document.getElementById('sheetId').value = settings.sheetId || '';
+        document.getElementById('webhookUrl').value = settings.webhookUrl || '';
         document.getElementById('autoCheck').checked = settings.autoCheck || false;
     }
 
