@@ -609,55 +609,45 @@
             showToast('⚠️ 請先生成號碼');
             return;
         }
-
+    
         const now = new Date();
-        const localDate = now.toLocaleDateString('en-CA', { timeZone: 'Asia/Hong_Kong' }); // output YYYY-MM-DD
+        // 確保日期格式係 YYYY-MM-DD
+        const localDate = now.toLocaleDateString('en-CA', { timeZone: 'Asia/Hong_Kong' });
+        const numbersStr = currentNumbers.map(n => formatNumber(n)).join(',');
+    
         const entry = {
             id: Date.now(),
             date: localDate,
-            numbers: currentNumbers.slice(),
-            status: 'pending',
+            numbers: numbersStr, // 確保係文字格式
+            status: 'Waiting'
         };
-
-        // 1. 本機記錄
+    
         history.unshift(entry);
-        if (history.length > 100) history.pop();
         saveHistory();
         renderHistory();
         
-        // 2. 獲取 API 設定
         const settings = loadApiSettingsInternal();
-        const numbersStr = currentNumbers.map(n => formatNumber(n)).join(',');
-
+    
         if (settings.webhookUrl) {
-            document.getElementById('infoBadge').textContent = '⏳ 上傳至 Google Sheet 中...';
-            showToast('⏳ 正在同步資料...');
+            document.getElementById('infoBadge').textContent = '⏳ 同步中...';
             
             try {
-                // 發送 POST Request
-                const response = await fetch(settings.webhookUrl, {
+                // 今次改用 JSON 格式送出，並明確標示欄位
+                await fetch(settings.webhookUrl, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'text/plain;charset=utf-8', // 用 text/plain 避免 CORS Preflight 錯誤
-                    },
+                    mode: 'no-cors', // 避開 CORS 限制
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        purchased_date: localDate,
-                        numbers: numbersStr,
-                        status: 'Waiting'
+                        date: entry.date,
+                        numbers: entry.numbers,
+                        status: entry.status
                     })
                 });
-
-                showToast('✅ 成功填入 Google Sheet');
-                document.getElementById('infoBadge').textContent = '✅ 已上傳：' + numbersStr;
-
+                showToast('✅ 同步成功！');
+                document.getElementById('infoBadge').textContent = '✅ 已上傳';
             } catch (error) {
-                console.error('Webhook 上傳失敗:', error);
-                showToast('❌ 填表失敗，請檢查 Webhook 網址');
-                document.getElementById('infoBadge').textContent = '❌ 上傳失敗';
+                showToast('❌ 同步失敗，請檢查網絡');
             }
-        } else {
-            showToast('✅ 已記錄到本機');
-            document.getElementById('infoBadge').textContent = '✅ 已儲存 (未設定自動填表)';
         }
     }
 
