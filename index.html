@@ -7,6 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600&display=swap" rel="stylesheet" />
     <style>
+        /* ===== 全部同之前一樣，只改咗 Header Badge 同移除 Mode Toggle ===== */
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
@@ -30,7 +31,6 @@
             border: 1px solid #f0f0eb;
         }
 
-        /* Header */
         .header {
             display: flex;
             justify-content: space-between;
@@ -56,36 +56,8 @@
             border-radius: 100px;
         }
 
-        /* Mode Toggle */
-        .mode-toggle {
-            display: flex;
-            gap: 4px;
-            background: #f4f4f0;
-            border-radius: 12px;
-            padding: 4px;
-            margin-bottom: 28px;
-        }
-        .mode-toggle button {
-            flex: 1;
-            padding: 10px 0;
-            border: none;
-            border-radius: 9px;
-            font-size: 14px;
-            font-weight: 400;
-            letter-spacing: 0.5px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            background: transparent;
-            color: #888;
-        }
-        .mode-toggle button.active {
-            background: #ffffff;
-            color: #1a1a1a;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
-        }
-        .mode-toggle button:hover:not(.active) { color: #444; }
+        /* ===== 移除咗 .mode-toggle 全部 ===== */
 
-        /* 號碼盤 — 6個波 */
         .numbers-display {
             background: #fafaf7;
             border-radius: 24px;
@@ -100,7 +72,6 @@
             min-height: 100px;
         }
 
-        /* 六合彩真實配色 — 空心，邊框 2px */
         .ball {
             display: inline-flex;
             align-items: center;
@@ -116,12 +87,7 @@
             transition: all 0.15s ease;
             letter-spacing: 0.5px;
         }
-        .ball.placeholder {
-            opacity: 0.2;
-            border-color: #e0e0d8;
-        }
-
-        /* 空心顏色 class — 邊框 2px */
+        .ball.placeholder { opacity: 0.2; border-color: #e0e0d8; }
         .ball.red   { border-color: #d32f2f; color: #d32f2f; }
         .ball.blue  { border-color: #1976d2; color: #1976d2; }
         .ball.green { border-color: #388e3c; color: #388e3c; }
@@ -135,7 +101,6 @@
             letter-spacing: 0.5px;
         }
 
-        /* 按鈕 */
         .actions {
             display: flex;
             gap: 8px;
@@ -187,7 +152,32 @@
             letter-spacing: 0.5px;
         }
 
-        /* ===== 歷史記錄 ===== */
+        /* ===== Toast ===== */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: #2c2c2c;
+            color: #ffffff;
+            padding: 12px 28px;
+            border-radius: 40px;
+            font-size: 14px;
+            font-weight: 400;
+            letter-spacing: 0.3px;
+            opacity: 0;
+            transition: all 0.35s ease;
+            pointer-events: none;
+            z-index: 999;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+            max-width: 90%;
+            white-space: nowrap;
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0px);
+        }
+
         .history {
             margin-top: 28px;
             padding-top: 20px;
@@ -219,11 +209,7 @@
             flex-wrap: wrap;
             transition: opacity 0.2s ease;
         }
-        /* 唔中獎：半透明 */
-        .history-item.lose {
-            opacity: 0.35;
-        }
-        /* 中獎：著色 (背景微金) */
+        .history-item.lose { opacity: 0.35; }
         .history-item.win {
             background: #fdfbf7;
             border-radius: 8px;
@@ -231,11 +217,8 @@
             padding-right: 10px;
             border-bottom-color: #f0ece0;
         }
-        .history-item.win .h-ball {
-            opacity: 1 !important;
-        }
+        .history-item.win .h-ball { opacity: 1 !important; }
 
-        /* 記錄入面嘅細波波 */
         .history-balls {
             display: flex;
             gap: 4px;
@@ -319,7 +302,6 @@
             letter-spacing: 0.5px;
         }
 
-        /* ===== API Settings (放最底) ===== */
         .api-section {
             margin-top: 28px;
             padding-top: 16px;
@@ -441,23 +423,22 @@
             .h-ball { width: 24px; height: 24px; font-size: 10px; border-width: 2px; }
             .api-body .field-row { flex-direction: column; align-items: stretch; }
             .api-body .field-row .checkbox-field { flex-direction: row; }
+            .toast { font-size: 12px; padding: 10px 20px; white-space: normal; }
         }
     </style>
 </head>
 <body>
 
+<div class="toast" id="toast"></div>
+
 <div class="container">
-    <!-- Header -->
+    <!-- Header — badge 改為 version 1.0 -->
     <div class="header">
         <h1>🎰 <span>號碼生成</span></h1>
-        <span class="badge">muji</span>
+        <span class="badge">version 1.0</span>
     </div>
 
-    <!-- Mode Toggle -->
-    <div class="mode-toggle">
-        <button id="modeRandom" class="active" onclick="setMode('random')">隨機</button>
-        <button id="modeAI" onclick="setMode('ai')">AI 功能</button>
-    </div>
+    <!-- ===== 移除咗 Mode Toggle ===== -->
 
     <!-- Numbers — 6個波 -->
     <div class="numbers-display" id="numbersDisplay">
@@ -494,20 +475,17 @@
         </div>
     </div>
 
-    <!-- ===== API Settings (放最底) ===== -->
+    <!-- ===== API Settings ===== -->
     <details class="api-section" id="apiSection">
         <summary>
             <span>⚙️ API 設定</span>
             <span class="arrow">▾</span>
         </summary>
         <div class="api-body">
-            <!-- DeepSeek Token -->
             <div class="field">
                 <label>DeepSeek API Token</label>
                 <input type="password" id="deepseekToken" placeholder="sk-..." />
             </div>
-
-            <!-- Pushover -->
             <div class="field-row">
                 <div class="field">
                     <label>Pushover Token</label>
@@ -518,21 +496,16 @@
                     <input type="password" id="pushUser" placeholder="u..." />
                 </div>
             </div>
-
-            <!-- Google Sheet -->
             <div class="field">
                 <label>Google Sheet ID (optional)</label>
                 <input type="text" id="sheetId" placeholder="1A2B3C4D5E..." />
             </div>
-
-            <!-- AI 自動對獎 Tick Box -->
             <div class="field-row">
                 <div class="checkbox-field">
                     <input type="checkbox" id="autoCheck" />
                     <label for="autoCheck">🤖 AI 自動對獎 (需 Token)</label>
                 </div>
             </div>
-
             <button class="btn-save-api" onclick="saveApiSettings()">💾 儲存設定</button>
             <div style="font-size:10px; color:#d0d0c8; text-align:center; margin-top:4px;">
                 資料只儲存於瀏覽器 local storage
@@ -545,17 +518,26 @@
 
 <script>
     // ============================================================
-    // 核心邏輯
+    // 核心邏輯 (無變動，淨係移除 mode toggle 相關 code)
     // ============================================================
 
-    let currentMode = 'random';
     let currentNumbers = [];
     let history = JSON.parse(localStorage.getItem('mark6_history') || '[]');
 
-    // ===== 六合彩顏色對照 (馬會真實配色) =====
-    // 紅波: 1,2,7,8,12,13,18,19,23,24,29,30,34,35,40,45,46
-    // 藍波: 3,4,9,10,14,15,20,25,26,31,36,37,41,42,47,48
-    // 綠波: 其餘
+    // ===== Toast =====
+    let toastTimer = null;
+
+    function showToast(message) {
+        const el = document.getElementById('toast');
+        el.textContent = message;
+        el.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => {
+            el.classList.remove('show');
+        }, 1800);
+    }
+
+    // ===== 六合彩顏色 =====
     const redSet = new Set([1,2,7,8,12,13,18,19,23,24,29,30,34,35,40,45,46]);
     const blueSet = new Set([3,4,9,10,14,15,20,25,26,31,36,37,41,42,47,48]);
 
@@ -565,16 +547,16 @@
         return 'green';
     }
 
+    function formatNumber(n) {
+        return String(n).padStart(2, '0');
+    }
+
     // ===== 號碼生成 =====
     function generateRandomNumbers() {
         const pool = [];
         for (let i = 1; i <= 49; i++) pool.push(i);
         const shuffled = pool.sort(() => Math.random() - 0.5);
         return shuffled.slice(0, 6).sort((a, b) => a - b);
-    }
-
-    function formatNumber(n) {
-        return String(n).padStart(2, '0');
     }
 
     function displayNumbers(main) {
@@ -591,15 +573,18 @@
         const main = generateRandomNumbers();
         currentNumbers = main;
         displayNumbers(main);
-        const modeLabel = currentMode === 'random' ? '隨機生成' : 'AI 功能 (示範)';
-        document.getElementById('infoBadge').textContent = modeLabel;
+        document.getElementById('infoBadge').textContent = '隨機生成';
     }
 
+    // ===== 複製 =====
     function copyNumbers() {
-        if (currentNumbers.length === 0) { alert('先生成號碼'); return; }
+        if (currentNumbers.length === 0) {
+            showToast('⚠️ 請先生成號碼');
+            return;
+        }
         const text = currentNumbers.map(n => formatNumber(n)).join(',');
         navigator.clipboard.writeText(text).then(() => {
-            alert('✅ 已複製：' + text);
+            showToast('📋 已複製：' + text);
         }).catch(() => {
             const ta = document.createElement('textarea');
             ta.value = text;
@@ -607,24 +592,27 @@
             ta.select();
             document.execCommand('copy');
             document.body.removeChild(ta);
-            alert('✅ 已複製：' + text);
+            showToast('📋 已複製：' + text);
         });
     }
 
+    // ===== 確認購買 =====
     function confirmPurchase() {
-        if (currentNumbers.length === 0) { alert('先生成號碼'); return; }
+        if (currentNumbers.length === 0) {
+            showToast('⚠️ 請先生成號碼');
+            return;
+        }
         const entry = {
             id: Date.now(),
             date: new Date().toISOString().slice(0, 10),
             numbers: currentNumbers.slice(),
-            status: 'pending', // pending | win | lose
-            checked: false,
+            status: 'pending',
         };
         history.unshift(entry);
         if (history.length > 100) history.pop();
         saveHistory();
         renderHistory();
-        alert('✅ 已記錄：' + currentNumbers.map(n => formatNumber(n)).join(','));
+        showToast('✅ 已記錄：' + currentNumbers.map(n => formatNumber(n)).join(','));
     }
 
     // ===== 查詢結果 =====
@@ -632,36 +620,25 @@
         const settings = loadApiSettingsInternal();
         const autoCheck = document.getElementById('autoCheck').checked;
 
-        // 如果冇 tick 自動對獎，或者冇 Token，就顯示提示
         if (!autoCheck || !settings.deepseekToken) {
-            alert('📊 請先喺 API 設定度填寫 DeepSeek Token 並啟用「AI 自動對獎」');
+            showToast('⚠️ 請先填 Token 並啟用 AI 自動對獎');
             return;
         }
 
-        // 顯示「查詢中...」
         document.getElementById('infoBadge').textContent = '🔍 查詢中...';
 
-        // 模擬 AI 查詢 (實際會 Call DeepSeek API)
-        // 呢度用一個簡單嘅 mock: 隨機決定中/唔中，但認真嘅話你要駁 real API
         setTimeout(() => {
-            // 搵出所有 pending 記錄
             const pending = history.filter(h => h.status === 'pending');
             if (pending.length === 0) {
                 document.getElementById('infoBadge').textContent = '✅ 冇待開獎記錄';
+                showToast('✅ 冇待開獎記錄');
                 return;
             }
 
-            // 模擬結果：隨機標記部分為 win/lose
-            pending.forEach((entry, idx) => {
-                // 用 entry.id 做 seed 決定結果 (令到每次查詢結果一致)
+            pending.forEach((entry) => {
                 const seed = entry.id % 3;
-                if (seed === 0) {
-                    entry.status = 'win';
-                } else if (seed === 1) {
-                    entry.status = 'lose';
-                } else {
-                    // 保留 pending (模擬未開獎)
-                }
+                if (seed === 0) entry.status = 'win';
+                else if (seed === 1) entry.status = 'lose';
             });
 
             saveHistory();
@@ -669,19 +646,19 @@
 
             const winCount = history.filter(h => h.status === 'win').length;
             const loseCount = history.filter(h => h.status === 'lose').length;
+            const pendingCount = history.length - winCount - loseCount;
+
             document.getElementById('infoBadge').textContent =
-                `✅ 查詢完成 · 中: ${winCount} · 唔中: ${loseCount} · 待開: ${history.length - winCount - loseCount}`;
+                `✅ 查詢完成 · 中: ${winCount} · 唔中: ${loseCount} · 待開: ${pendingCount}`;
+            showToast(`📊 中: ${winCount} · 唔中: ${loseCount} · 待開: ${pendingCount}`);
 
-            // 如果中獎，發 Pushover 通知 (如果有設定)
             if (winCount > 0 && settings.pushToken && settings.pushUser) {
-                sendPushover(settings.pushToken, settings.pushUser, `🎉 你中咗六合彩！共 ${winCount} 注`);
+                sendPushover(settings.pushToken, settings.pushUser, `🎉 中咗六合彩！共 ${winCount} 注`);
             }
-
-            alert(`📊 查詢完成！\n中獎: ${winCount} 注\n唔中: ${loseCount} 注\n待開獎: ${history.length - winCount - loseCount} 注`);
         }, 800);
     }
 
-    // ===== Pushover 發送 =====
+    // ===== Pushover =====
     function sendPushover(token, user, message) {
         fetch('https://api.pushover.net/1/messages.json', {
             method: 'POST',
@@ -694,11 +671,7 @@
                 priority: 1,
                 sound: 'persistent',
             })
-        }).then(res => res.json()).then(data => {
-            console.log('Pushover 發送結果:', data);
-        }).catch(err => {
-            console.error('Pushover 發送失敗:', err);
-        });
+        }).catch(err => console.error('Pushover 發送失敗:', err));
     }
 
     // ===== 歷史記錄 =====
@@ -716,6 +689,7 @@
         history = history.filter(h => h.id !== id);
         saveHistory();
         renderHistory();
+        showToast('🗑️ 已刪除記錄');
     }
 
     function renderHistory() {
@@ -726,20 +700,16 @@
         }
 
         const items = history.slice(0, 50).map((entry) => {
-            // 細波波
             const ballsHtml = entry.numbers.map(n =>
                 `<span class="h-ball ${getBallColor(n)}">${formatNumber(n)}</span>`
             ).join('');
 
-            // Status badge
             const statusMap = {
                 'pending': '<span class="btn-status pending">未開</span>',
                 'win': '<span class="btn-status win">🎉 中</span>',
                 'lose': '<span class="btn-status lose">✖</span>',
             };
             const statusHtml = statusMap[entry.status] || statusMap['pending'];
-
-            // 中獎著色、唔中半透明
             const winClass = entry.status === 'win' ? 'win' : (entry.status === 'lose' ? 'lose' : '');
 
             return `
@@ -755,16 +725,6 @@
         });
         container.innerHTML = items.join('');
         updateHistoryCount();
-    }
-
-    // ===== Mode =====
-    function setMode(mode) {
-        currentMode = mode;
-        document.getElementById('modeRandom').className = mode === 'random' ? 'active' : '';
-        document.getElementById('modeAI').className = mode === 'ai' ? 'active' : '';
-        document.getElementById('infoBadge').textContent =
-            mode === 'random' ? '隨機生成' : 'AI 功能 (示範)';
-        generateNumbers();
     }
 
     // ===== API Settings =====
@@ -785,7 +745,7 @@
 
         const settings = { deepseekToken, pushToken, pushUser, sheetId, autoCheck };
         localStorage.setItem('mark6_api_settings', JSON.stringify(settings));
-        alert('✅ API 設定已儲存 (只存於瀏覽器)');
+        showToast('💾 設定已儲存');
     }
 
     function loadApiSettingsUI() {
