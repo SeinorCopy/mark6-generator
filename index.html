@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>🎰 號碼生成</title>
+    <title>Mark 6</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600&display=swap" rel="stylesheet" />
     <style>
@@ -123,8 +123,8 @@
         .actions button:active { transform: scale(0.97); }
 
         .btn-generate {
-            border-color: #2c2c2c !important;
-            background: #2c2c2c !important;
+            border-color: #6b6b6b !important;
+            background: #6b6b6b !important;
             color: #ffffff !important;
         }
         .btn-generate:hover { background: #1a1a1a !important; }
@@ -434,7 +434,7 @@
 <div class="container">
     <!-- Header — badge 改為 version 1.0 -->
     <div class="header">
-        <h1>🎰 <span>號碼生成</span></h1>
+        <h1><span>Mark 6</span></h1>
         <span class="badge">version 1.0</span>
     </div>
 
@@ -459,7 +459,7 @@
     </div>
     <div class="actions">
         <button class="btn-confirm" onclick="confirmPurchase()">確認購買</button>
-        <button class="btn-query" onclick="queryResult()">📊 查詢結果</button>
+        <button class="btn-query" onclick="queryResult()">查詢結果</button>
     </div>
 
     <div class="info-badge" id="infoBadge">隨機生成</div>
@@ -503,12 +503,12 @@
             <div class="field-row">
                 <div class="checkbox-field">
                     <input type="checkbox" id="autoCheck" />
-                    <label for="autoCheck">🤖 AI 自動對獎 (需 Token)</label>
+                    <label for="autoCheck">AI 自動對獎 (需 Token)</label>
                 </div>
             </div>
-            <button class="btn-save-api" onclick="saveApiSettings()">💾 儲存設定</button>
+            <button class="btn-save-api" onclick="saveApiSettings()">儲存設定</button>
             <div style="font-size:10px; color:#d0d0c8; text-align:center; margin-top:4px;">
-                資料只儲存於瀏覽器 local storage
+                資料只儲存於瀏覽器
             </div>
         </div>
     </details>
@@ -573,7 +573,7 @@
         const main = generateRandomNumbers();
         currentNumbers = main;
         displayNumbers(main);
-        document.getElementById('infoBadge').textContent = '隨機生成';
+        document.getElementById('infoBadge').textContent = '';
     }
 
     // ===== 複製 =====
