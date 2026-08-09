@@ -3,15 +3,11 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>🎰 六合彩 · 無印</title>
+    <title>🎰 號碼生成</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600&display=swap" rel="stylesheet" />
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: 'Inter', -apple-system, system-ui, 'Helvetica Neue', sans-serif;
@@ -89,7 +85,7 @@
         }
         .mode-toggle button:hover:not(.active) { color: #444; }
 
-        /* 號碼盤 */
+        /* 號碼盤 — 6個波 */
         .numbers-display {
             background: #fafaf7;
             border-radius: 24px;
@@ -98,13 +94,13 @@
             flex-wrap: wrap;
             justify-content: center;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
             margin-bottom: 12px;
             border: 1px solid #efefe9;
-            min-height: 108px;
+            min-height: 100px;
         }
 
-        /* 六合彩真實配色 — 全部空心 */
+        /* 六合彩真實配色 — 空心，邊框 2px */
         .ball {
             display: inline-flex;
             align-items: center;
@@ -115,7 +111,7 @@
             font-size: 20px;
             font-weight: 500;
             background: #ffffff;
-            border: 3px solid #e0e0d8;
+            border: 2px solid #e0e0d8;
             color: #2c2c2c;
             transition: all 0.15s ease;
             letter-spacing: 0.5px;
@@ -125,19 +121,10 @@
             border-color: #e0e0d8;
         }
 
-        /* 空心顏色 class */
+        /* 空心顏色 class — 邊框 2px */
         .ball.red   { border-color: #d32f2f; color: #d32f2f; }
         .ball.blue  { border-color: #1976d2; color: #1976d2; }
         .ball.green { border-color: #388e3c; color: #388e3c; }
-        .ball.yellow{ border-color: #f9a825; color: #f9a825; }
-        .ball.purple{ border-color: #7b1fa2; color: #7b1fa2; }
-
-        .plus-sign {
-            font-size: 22px;
-            color: #c0c0b8;
-            font-weight: 200;
-            margin: 0 2px;
-        }
 
         .timestamp {
             font-size: 13px;
@@ -184,6 +171,13 @@
         }
         .btn-confirm:hover { background: #f8f4ec !important; }
 
+        .btn-query {
+            border-color: #b0b0a8 !important;
+            color: #666 !important;
+            background: #fafaf7 !important;
+        }
+        .btn-query:hover { background: #f4f4f0 !important; }
+
         .info-badge {
             margin-top: 16px;
             font-size: 13px;
@@ -223,6 +217,22 @@
             color: #555;
             gap: 8px;
             flex-wrap: wrap;
+            transition: opacity 0.2s ease;
+        }
+        /* 唔中獎：半透明 */
+        .history-item.lose {
+            opacity: 0.35;
+        }
+        /* 中獎：著色 (背景微金) */
+        .history-item.win {
+            background: #fdfbf7;
+            border-radius: 8px;
+            padding-left: 10px;
+            padding-right: 10px;
+            border-bottom-color: #f0ece0;
+        }
+        .history-item.win .h-ball {
+            opacity: 1 !important;
         }
 
         /* 記錄入面嘅細波波 */
@@ -242,23 +252,12 @@
             font-size: 11px;
             font-weight: 500;
             background: #ffffff;
-            border: 2.5px solid #e0e0d8;
+            border: 2px solid #e0e0d8;
             color: #2c2c2c;
         }
         .h-ball.red   { border-color: #d32f2f; color: #d32f2f; }
         .h-ball.blue  { border-color: #1976d2; color: #1976d2; }
         .h-ball.green { border-color: #388e3c; color: #388e3c; }
-        .h-ball.yellow{ border-color: #f9a825; color: #f9a825; }
-        .h-ball.purple{ border-color: #7b1fa2; color: #7b1fa2; }
-        .h-ball.special {
-            border-width: 2.5px;
-            border-style: solid;
-        }
-        .h-plus {
-            font-size: 12px;
-            color: #c0c0b8;
-            margin: 0 1px;
-        }
 
         .history-item .h-date {
             font-size: 12px;
@@ -290,6 +289,26 @@
             color: #d32f2f;
             border-color: #f0c8c8;
         }
+        .history-actions .btn-status {
+            border-color: #e0e0d8;
+            color: #aaa;
+            font-size: 9px;
+            padding: 2px 8px;
+            cursor: default;
+        }
+        .history-actions .btn-status.win {
+            border-color: #d4a86a;
+            color: #a67c3e;
+            background: #fdfbf7;
+        }
+        .history-actions .btn-status.lose {
+            border-color: #e0e0d8;
+            color: #bbb;
+        }
+        .history-actions .btn-status.pending {
+            border-color: #f0f0e8;
+            color: #ccc;
+        }
 
         .history-empty {
             color: #d0d0c8;
@@ -318,19 +337,13 @@
             justify-content: space-between;
             align-items: center;
         }
-        .api-section summary::-webkit-details-marker {
-            display: none;
-        }
-        .api-section summary:hover {
-            color: #888;
-        }
+        .api-section summary::-webkit-details-marker { display: none; }
+        .api-section summary:hover { color: #888; }
         .api-section .arrow {
             font-size: 12px;
             transition: transform 0.2s ease;
         }
-        .api-section[open] .arrow {
-            transform: rotate(180deg);
-        }
+        .api-section[open] .arrow { transform: rotate(180deg); }
 
         .api-body {
             margin-top: 14px;
@@ -365,16 +378,31 @@
             border-color: #b0b0a8;
             background: #ffffff;
         }
-        .api-body .field input::placeholder {
-            color: #c0c0b8;
-        }
+        .api-body .field input::placeholder { color: #c0c0b8; }
 
         .api-body .field-row {
             display: flex;
             gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
         }
         .api-body .field-row .field {
             flex: 1;
+            min-width: 120px;
+        }
+        .api-body .field-row .checkbox-field {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: #888;
+            white-space: nowrap;
+        }
+        .api-body .field-row .checkbox-field input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: #2c2c2c;
+            cursor: pointer;
         }
 
         .api-body .btn-save-api {
@@ -403,16 +431,16 @@
             letter-spacing: 1px;
         }
 
-        /* Responsive */
         @media (max-width: 420px) {
             .container { padding: 28px 18px 24px; }
-            .ball { width: 44px; height: 44px; font-size: 17px; }
-            .numbers-display { padding: 24px 8px; gap: 6px; }
+            .ball { width: 44px; height: 44px; font-size: 17px; border-width: 2px; }
+            .numbers-display { padding: 24px 8px; gap: 8px; }
             .header h1 { font-size: 16px; }
             .actions button { font-size: 15px; }
             .history-item { font-size: 13px; }
             .h-ball { width: 24px; height: 24px; font-size: 10px; border-width: 2px; }
-            .api-body .field-row { flex-direction: column; gap: 12px; }
+            .api-body .field-row { flex-direction: column; align-items: stretch; }
+            .api-body .field-row .checkbox-field { flex-direction: row; }
         }
     </style>
 </head>
@@ -421,17 +449,17 @@
 <div class="container">
     <!-- Header -->
     <div class="header">
-        <h1>🎰 <span>Mark6</span></h1>
+        <h1>🎰 <span>號碼生成</span></h1>
         <span class="badge">muji</span>
     </div>
 
     <!-- Mode Toggle -->
     <div class="mode-toggle">
         <button id="modeRandom" class="active" onclick="setMode('random')">隨機</button>
-        <button id="modeDeepseek" onclick="setMode('deepseek')">AI</button>
+        <button id="modeAI" onclick="setMode('ai')">AI 功能</button>
     </div>
 
-    <!-- Numbers -->
+    <!-- Numbers — 6個波 -->
     <div class="numbers-display" id="numbersDisplay">
         <span class="ball placeholder">01</span>
         <span class="ball placeholder">02</span>
@@ -439,8 +467,6 @@
         <span class="ball placeholder">04</span>
         <span class="ball placeholder">05</span>
         <span class="ball placeholder">06</span>
-        <span class="plus-sign">+</span>
-        <span class="ball placeholder">07</span>
     </div>
 
     <div class="timestamp" id="timestamp">—</div>
@@ -452,6 +478,7 @@
     </div>
     <div class="actions">
         <button class="btn-confirm" onclick="confirmPurchase()">確認購買</button>
+        <button class="btn-query" onclick="queryResult()">📊 查詢結果</button>
     </div>
 
     <div class="info-badge" id="infoBadge">隨機生成</div>
@@ -474,14 +501,10 @@
             <span class="arrow">▾</span>
         </summary>
         <div class="api-body">
-            <!-- Google Sheet -->
+            <!-- DeepSeek Token -->
             <div class="field">
-                <label>Google Sheets API Credentials (JSON)</label>
-                <input type="text" id="gsheetCred" placeholder='{"type":"service_account",...}' />
-            </div>
-            <div class="field">
-                <label>Google Sheet ID</label>
-                <input type="text" id="sheetId" placeholder="1A2B3C4D5E..." />
+                <label>DeepSeek API Token</label>
+                <input type="password" id="deepseekToken" placeholder="sk-..." />
             </div>
 
             <!-- Pushover -->
@@ -493,6 +516,20 @@
                 <div class="field">
                     <label>Pushover User Key</label>
                     <input type="password" id="pushUser" placeholder="u..." />
+                </div>
+            </div>
+
+            <!-- Google Sheet -->
+            <div class="field">
+                <label>Google Sheet ID (optional)</label>
+                <input type="text" id="sheetId" placeholder="1A2B3C4D5E..." />
+            </div>
+
+            <!-- AI 自動對獎 Tick Box -->
+            <div class="field-row">
+                <div class="checkbox-field">
+                    <input type="checkbox" id="autoCheck" />
+                    <label for="autoCheck">🤖 AI 自動對獎 (需 Token)</label>
                 </div>
             </div>
 
@@ -513,16 +550,14 @@
 
     let currentMode = 'random';
     let currentNumbers = [];
-    let currentSpecial = null;
     let history = JSON.parse(localStorage.getItem('mark6_history') || '[]');
 
     // ===== 六合彩顏色對照 (馬會真實配色) =====
     // 紅波: 1,2,7,8,12,13,18,19,23,24,29,30,34,35,40,45,46
     // 藍波: 3,4,9,10,14,15,20,25,26,31,36,37,41,42,47,48
-    // 綠波: 5,6,11,16,17,21,22,27,28,32,33,38,39,43,44,49
+    // 綠波: 其餘
     const redSet = new Set([1,2,7,8,12,13,18,19,23,24,29,30,34,35,40,45,46]);
     const blueSet = new Set([3,4,9,10,14,15,20,25,26,31,36,37,41,42,47,48]);
-    // 其餘為綠波
 
     function getBallColor(n) {
         if (redSet.has(n)) return 'red';
@@ -535,50 +570,34 @@
         const pool = [];
         for (let i = 1; i <= 49; i++) pool.push(i);
         const shuffled = pool.sort(() => Math.random() - 0.5);
-        const main = shuffled.slice(0, 6).sort((a, b) => a - b);
-        const special = shuffled[6];
-        return { main, special };
+        return shuffled.slice(0, 6).sort((a, b) => a - b);
     }
 
     function formatNumber(n) {
         return String(n).padStart(2, '0');
     }
 
-    function displayNumbers(main, special) {
+    function displayNumbers(main) {
         const container = document.getElementById('numbersDisplay');
         const balls = main.map(n =>
             `<span class="ball ${getBallColor(n)}">${formatNumber(n)}</span>`
         );
-        container.innerHTML = `
-            ${balls.join('')}
-            <span class="plus-sign">+</span>
-            <span class="ball ${getBallColor(special)}">${formatNumber(special)}</span>
-        `;
+        container.innerHTML = balls.join('');
         document.getElementById('timestamp').textContent =
             `🕐 ${new Date().toLocaleString('zh-HK')}`;
     }
 
     function generateNumbers() {
-        if (currentMode === 'deepseek') {
-            // 現階段 fallback 隨機，之後可駁 DeepSeek API
-            const { main, special } = generateRandomNumbers();
-            currentNumbers = main;
-            currentSpecial = special;
-            displayNumbers(main, special);
-            document.getElementById('infoBadge').textContent = '🤖 AI 模式 (示範)';
-        } else {
-            const { main, special } = generateRandomNumbers();
-            currentNumbers = main;
-            currentSpecial = special;
-            displayNumbers(main, special);
-            document.getElementById('infoBadge').textContent = '隨機生成';
-        }
+        const main = generateRandomNumbers();
+        currentNumbers = main;
+        displayNumbers(main);
+        const modeLabel = currentMode === 'random' ? '隨機生成' : 'AI 功能 (示範)';
+        document.getElementById('infoBadge').textContent = modeLabel;
     }
 
     function copyNumbers() {
         if (currentNumbers.length === 0) { alert('先生成號碼'); return; }
-        const text = currentNumbers.map(n => formatNumber(n)).join(',') +
-                    ' + ' + formatNumber(currentSpecial);
+        const text = currentNumbers.map(n => formatNumber(n)).join(',');
         navigator.clipboard.writeText(text).then(() => {
             alert('✅ 已複製：' + text);
         }).catch(() => {
@@ -598,14 +617,88 @@
             id: Date.now(),
             date: new Date().toISOString().slice(0, 10),
             numbers: currentNumbers.slice(),
-            special: currentSpecial,
-            status: 'pending', // 只用作顯示，唔再俾人改
+            status: 'pending', // pending | win | lose
+            checked: false,
         };
         history.unshift(entry);
         if (history.length > 100) history.pop();
         saveHistory();
         renderHistory();
-        alert('✅ 已記錄：' + currentNumbers.map(n => formatNumber(n)).join(',') + ' + ' + formatNumber(currentSpecial));
+        alert('✅ 已記錄：' + currentNumbers.map(n => formatNumber(n)).join(','));
+    }
+
+    // ===== 查詢結果 =====
+    function queryResult() {
+        const settings = loadApiSettingsInternal();
+        const autoCheck = document.getElementById('autoCheck').checked;
+
+        // 如果冇 tick 自動對獎，或者冇 Token，就顯示提示
+        if (!autoCheck || !settings.deepseekToken) {
+            alert('📊 請先喺 API 設定度填寫 DeepSeek Token 並啟用「AI 自動對獎」');
+            return;
+        }
+
+        // 顯示「查詢中...」
+        document.getElementById('infoBadge').textContent = '🔍 查詢中...';
+
+        // 模擬 AI 查詢 (實際會 Call DeepSeek API)
+        // 呢度用一個簡單嘅 mock: 隨機決定中/唔中，但認真嘅話你要駁 real API
+        setTimeout(() => {
+            // 搵出所有 pending 記錄
+            const pending = history.filter(h => h.status === 'pending');
+            if (pending.length === 0) {
+                document.getElementById('infoBadge').textContent = '✅ 冇待開獎記錄';
+                return;
+            }
+
+            // 模擬結果：隨機標記部分為 win/lose
+            pending.forEach((entry, idx) => {
+                // 用 entry.id 做 seed 決定結果 (令到每次查詢結果一致)
+                const seed = entry.id % 3;
+                if (seed === 0) {
+                    entry.status = 'win';
+                } else if (seed === 1) {
+                    entry.status = 'lose';
+                } else {
+                    // 保留 pending (模擬未開獎)
+                }
+            });
+
+            saveHistory();
+            renderHistory();
+
+            const winCount = history.filter(h => h.status === 'win').length;
+            const loseCount = history.filter(h => h.status === 'lose').length;
+            document.getElementById('infoBadge').textContent =
+                `✅ 查詢完成 · 中: ${winCount} · 唔中: ${loseCount} · 待開: ${history.length - winCount - loseCount}`;
+
+            // 如果中獎，發 Pushover 通知 (如果有設定)
+            if (winCount > 0 && settings.pushToken && settings.pushUser) {
+                sendPushover(settings.pushToken, settings.pushUser, `🎉 你中咗六合彩！共 ${winCount} 注`);
+            }
+
+            alert(`📊 查詢完成！\n中獎: ${winCount} 注\n唔中: ${loseCount} 注\n待開獎: ${history.length - winCount - loseCount} 注`);
+        }, 800);
+    }
+
+    // ===== Pushover 發送 =====
+    function sendPushover(token, user, message) {
+        fetch('https://api.pushover.net/1/messages.json', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({
+                token: token,
+                user: user,
+                message: message,
+                title: '🎰 六合彩中獎通知',
+                priority: 1,
+                sound: 'persistent',
+            })
+        }).then(res => res.json()).then(data => {
+            console.log('Pushover 發送結果:', data);
+        }).catch(err => {
+            console.error('Pushover 發送失敗:', err);
+        });
     }
 
     // ===== 歷史記錄 =====
@@ -633,21 +726,28 @@
         }
 
         const items = history.slice(0, 50).map((entry) => {
-            // 生成細波波 HTML
+            // 細波波
             const ballsHtml = entry.numbers.map(n =>
                 `<span class="h-ball ${getBallColor(n)}">${formatNumber(n)}</span>`
             ).join('');
-            const specialHtml = `<span class="h-ball ${getBallColor(entry.special)}">${formatNumber(entry.special)}</span>`;
+
+            // Status badge
+            const statusMap = {
+                'pending': '<span class="btn-status pending">未開</span>',
+                'win': '<span class="btn-status win">🎉 中</span>',
+                'lose': '<span class="btn-status lose">✖</span>',
+            };
+            const statusHtml = statusMap[entry.status] || statusMap['pending'];
+
+            // 中獎著色、唔中半透明
+            const winClass = entry.status === 'win' ? 'win' : (entry.status === 'lose' ? 'lose' : '');
 
             return `
-                <div class="history-item">
+                <div class="history-item ${winClass}">
                     <span class="h-date">${entry.date}</span>
-                    <span class="history-balls">
-                        ${ballsHtml}
-                        <span class="h-plus">+</span>
-                        ${specialHtml}
-                    </span>
+                    <span class="history-balls">${ballsHtml}</span>
                     <div class="history-actions">
+                        ${statusHtml}
                         <button class="btn-delete" onclick="deleteEntry(${entry.id})">✕</button>
                     </div>
                 </div>
@@ -661,40 +761,46 @@
     function setMode(mode) {
         currentMode = mode;
         document.getElementById('modeRandom').className = mode === 'random' ? 'active' : '';
-        document.getElementById('modeDeepseek').className = mode === 'deepseek' ? 'active' : '';
+        document.getElementById('modeAI').className = mode === 'ai' ? 'active' : '';
         document.getElementById('infoBadge').textContent =
-            mode === 'random' ? '隨機生成' : 'AI 模式 (示範)';
+            mode === 'random' ? '隨機生成' : 'AI 功能 (示範)';
         generateNumbers();
     }
 
-    // ===== API Settings (儲存) =====
+    // ===== API Settings =====
+    function loadApiSettingsInternal() {
+        try {
+            const raw = localStorage.getItem('mark6_api_settings');
+            if (!raw) return {};
+            return JSON.parse(raw);
+        } catch (e) { return {}; }
+    }
+
     function saveApiSettings() {
-        const gsheetCred = document.getElementById('gsheetCred').value.trim();
-        const sheetId = document.getElementById('sheetId').value.trim();
+        const deepseekToken = document.getElementById('deepseekToken').value.trim();
         const pushToken = document.getElementById('pushToken').value.trim();
         const pushUser = document.getElementById('pushUser').value.trim();
+        const sheetId = document.getElementById('sheetId').value.trim();
+        const autoCheck = document.getElementById('autoCheck').checked;
 
-        const settings = { gsheetCred, sheetId, pushToken, pushUser };
+        const settings = { deepseekToken, pushToken, pushUser, sheetId, autoCheck };
         localStorage.setItem('mark6_api_settings', JSON.stringify(settings));
         alert('✅ API 設定已儲存 (只存於瀏覽器)');
     }
 
-    function loadApiSettings() {
-        try {
-            const raw = localStorage.getItem('mark6_api_settings');
-            if (!raw) return;
-            const settings = JSON.parse(raw);
-            document.getElementById('gsheetCred').value = settings.gsheetCred || '';
-            document.getElementById('sheetId').value = settings.sheetId || '';
-            document.getElementById('pushToken').value = settings.pushToken || '';
-            document.getElementById('pushUser').value = settings.pushUser || '';
-        } catch (e) { /* ignore */ }
+    function loadApiSettingsUI() {
+        const settings = loadApiSettingsInternal();
+        document.getElementById('deepseekToken').value = settings.deepseekToken || '';
+        document.getElementById('pushToken').value = settings.pushToken || '';
+        document.getElementById('pushUser').value = settings.pushUser || '';
+        document.getElementById('sheetId').value = settings.sheetId || '';
+        document.getElementById('autoCheck').checked = settings.autoCheck || false;
     }
 
     // ===== Init =====
     renderHistory();
     generateNumbers();
-    loadApiSettings();
+    loadApiSettingsUI();
 </script>
 
 </body>
