@@ -3,234 +3,366 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>🎰 六合彩號碼生成器</title>
+    <title>🎰 六合彩生成器</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap" rel="stylesheet" />
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
+
         body {
-            font-family: -apple-system, system-ui, sans-serif;
-            background: #f5f5f5;
+            font-family: 'Inter', -apple-system, system-ui, sans-serif;
+            background: #0d0d0d;
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
             padding: 20px;
+            position: relative;
+            overflow-x: hidden;
         }
+
+        /* 背景光暈 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -40%;
+            left: -20%;
+            width: 80%;
+            height: 80%;
+            background: radial-gradient(circle, rgba(180, 83, 255, 0.12) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        body::after {
+            content: '';
+            position: fixed;
+            bottom: -30%;
+            right: -20%;
+            width: 70%;
+            height: 70%;
+            background: radial-gradient(circle, rgba(255, 200, 50, 0.08) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
         .container {
-            background: white;
-            border-radius: 24px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            padding: 32px;
-            max-width: 520px;
+            position: relative;
+            z-index: 1;
             width: 100%;
+            max-width: 500px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 40px;
+            padding: 32px 24px 28px;
+            box-shadow: 0 32px 80px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.06);
         }
-        h1 {
-            font-size: 24px;
-            margin-bottom: 8px;
+
+        .header {
             display: flex;
-            align-items: center;
-            gap: 8px;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 24px;
         }
-        .subtitle {
-            color: #888;
-            font-size: 14px;
-            margin-bottom: 20px;
+
+        .header h1 {
+            font-size: 22px;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: -0.3px;
         }
-        .mode-selector {
+        .header h1 span {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .header .badge {
+            font-size: 11px;
+            font-weight: 600;
+            color: #a3a3a3;
+            background: rgba(255, 255, 255, 0.06);
+            padding: 4px 12px;
+            border-radius: 100px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        /* Mode Toggle */
+        .mode-toggle {
             display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 14px;
+            padding: 4px;
+            margin-bottom: 28px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
         }
-        .mode-selector button {
+        .mode-toggle button {
             flex: 1;
-            padding: 10px;
-            border: 2px solid #e0e0e0;
-            border-radius: 12px;
-            background: white;
+            padding: 10px 0;
+            border: none;
+            border-radius: 11px;
             font-size: 14px;
+            font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.25s ease;
+            background: transparent;
+            color: #888;
         }
-        .mode-selector button.active {
-            border-color: #d4a000;
-            background: #fff8e0;
+        .mode-toggle button.active {
+            background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
+            color: #fff;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
         }
-        .mode-selector button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
+        .mode-toggle button:hover:not(.active) {
+            color: #ccc;
         }
+
+        /* 號碼盤 */
         .numbers-display {
-            background: #f9f9f9;
-            border-radius: 16px;
-            padding: 28px;
-            text-align: center;
-            margin-bottom: 16px;
-            min-height: 100px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 28px;
+            padding: 32px 16px;
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
             align-items: center;
             gap: 8px;
+            margin-bottom: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            min-height: 110px;
         }
+
         .ball {
-            display: inline-block;
-            width: 48px;
-            height: 48px;
-            line-height: 48px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 52px;
+            height: 52px;
             border-radius: 50%;
             font-size: 20px;
             font-weight: 700;
-            text-align: center;
-            background: #d4a000;
-            color: white;
+            color: #fff;
+            background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+            transition: all 0.2s ease;
         }
-        .ball.special {
-            background: #e74c3c;
-            width: 44px;
-            height: 44px;
-            line-height: 44px;
+        .ball.glow-gold {
+            background: linear-gradient(145deg, #fbbf24, #d97706);
+            box-shadow: 0 4px 28px rgba(251, 191, 36, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+        .ball.glow-purple {
+            background: linear-gradient(145deg, #a855f7, #7c3aed);
+            box-shadow: 0 4px 28px rgba(168, 85, 247, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            width: 48px;
+            height: 48px;
             font-size: 18px;
         }
         .ball.placeholder {
-            background: #e0e0e0;
-            color: #aaa;
+            opacity: 0.2;
         }
+
         .plus-sign {
-            font-size: 28px;
-            color: #888;
+            font-size: 26px;
+            color: #555;
             font-weight: 300;
+            margin: 0 2px;
         }
+
         .timestamp {
-            color: #888;
-            font-size: 13px;
+            font-size: 12px;
+            color: #555;
             text-align: center;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
+            letter-spacing: 0.2px;
         }
+
+        /* 按鈕 */
         .actions {
             display: flex;
             gap: 10px;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
         }
         .actions button {
             flex: 1;
-            padding: 12px;
+            padding: 14px 0;
             border: none;
-            border-radius: 12px;
+            border-radius: 16px;
             font-size: 15px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.2s ease;
         }
-        .btn-primary {
-            background: #d4a000;
-            color: white;
+        .btn-generate {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            color: #0d0d0d;
+            box-shadow: 0 4px 24px rgba(251, 191, 36, 0.15);
         }
-        .btn-primary:hover {
-            background: #b88900;
+        .btn-generate:hover {
+            transform: scale(0.97);
+            box-shadow: 0 6px 32px rgba(251, 191, 36, 0.25);
         }
+        .btn-generate:active {
+            transform: scale(0.94);
+        }
+
         .btn-secondary {
-            background: #f0f0f0;
-            color: #333;
+            background: rgba(255, 255, 255, 0.06);
+            color: #ccc;
+            border: 1px solid rgba(255, 255, 255, 0.06);
         }
         .btn-secondary:hover {
-            background: #e0e0e0;
+            background: rgba(255, 255, 255, 0.1);
         }
-        .btn-success {
-            background: #27ae60;
-            color: white;
+
+        .btn-confirm {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: #fff;
+            box-shadow: 0 4px 24px rgba(16, 185, 129, 0.12);
         }
-        .btn-success:hover {
-            background: #1e8449;
+        .btn-confirm:hover {
+            transform: scale(0.97);
+            box-shadow: 0 6px 32px rgba(16, 185, 129, 0.2);
         }
-        .info-badge {
-            background: #f0f0f0;
-            border-radius: 8px;
-            padding: 8px 12px;
-            font-size: 12px;
+        .btn-confirm:active {
+            transform: scale(0.94);
+        }
+
+        /* Token input */
+        .token-area {
+            margin-top: 14px;
+            padding: 14px 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            display: none;
+        }
+        .token-area label {
+            font-size: 11px;
+            font-weight: 600;
             color: #666;
-            text-align: center;
+            display: block;
+            margin-bottom: 6px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
         }
+        .token-area input {
+            width: 100%;
+            padding: 10px 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 13px;
+            background: rgba(0, 0, 0, 0.3);
+            color: #eee;
+            outline: none;
+            font-family: 'Inter', sans-serif;
+        }
+        .token-area input::placeholder {
+            color: #444;
+        }
+        .token-area input:focus {
+            ring: 2px solid rgba(251, 191, 36, 0.2);
+        }
+
+        .info-badge {
+            margin-top: 14px;
+            font-size: 12px;
+            color: #555;
+            text-align: center;
+            letter-spacing: 0.2px;
+        }
+
+        /* 歷史記錄 */
         .history {
-            margin-top: 20px;
-            border-top: 1px solid #eee;
-            padding-top: 16px;
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
         }
         .history h3 {
-            font-size: 14px;
-            color: #888;
-            margin-bottom: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 12px;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
         }
         .history-item {
             display: flex;
             justify-content: space-between;
-            padding: 6px 0;
+            align-items: center;
+            padding: 8px 0;
             font-size: 13px;
-            border-bottom: 1px solid #f5f5f5;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            color: #aaa;
         }
-        .history-item .numbers {
-            font-family: monospace;
+        .history-item .nums {
+            font-family: 'Inter', monospace;
+            font-weight: 500;
+            color: #ddd;
         }
-        .history-item .result {
-            font-weight: 600;
-        }
-        .result.win { color: #27ae60; }
-        .result.lose { color: #e74c3c; }
-        .result.pending { color: #f39c12; }
-        .history-empty {
-            color: #ccc;
-            font-size: 13px;
-            text-align: center;
-            padding: 12px 0;
-        }
-        .token-input {
-            display: none;
-            margin-top: 12px;
-            padding: 12px;
-            background: #f9f9f9;
-            border-radius: 12px;
-        }
-        .token-input input {
-            width: 100%;
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 13px;
-        }
-        .token-input label {
-            font-size: 12px;
-            color: #888;
-            display: block;
-            margin-bottom: 4px;
-        }
-        .footer {
-            margin-top: 16px;
+        .history-item .status {
             font-size: 11px;
-            color: #ccc;
-            text-align: center;
+            font-weight: 600;
+            padding: 2px 12px;
+            border-radius: 100px;
         }
-        @media (max-width: 480px) {
-            .container { padding: 20px; }
-            .ball { width: 40px; height: 40px; line-height: 40px; font-size: 16px; }
-            .ball.special { width: 36px; height: 36px; line-height: 36px; font-size: 14px; }
+        .status.pending {
+            background: rgba(251, 191, 36, 0.12);
+            color: #fbbf24;
+        }
+        .status.win {
+            background: rgba(16, 185, 129, 0.12);
+            color: #10b981;
+        }
+        .status.lose {
+            background: rgba(239, 68, 68, 0.08);
+            color: #666;
+        }
+        .history-empty {
+            color: #444;
+            font-size: 13px;
+            text-align: center;
+            padding: 16px 0;
+        }
+
+        .footer {
+            margin-top: 20px;
+            font-size: 10px;
+            color: #2a2a2a;
+            text-align: center;
+            letter-spacing: 0.3px;
+        }
+
+        /* Responsive */
+        @media (max-width: 420px) {
+            .container { padding: 24px 16px 20px; border-radius: 28px; }
+            .ball { width: 44px; height: 44px; font-size: 16px; }
+            .ball.glow-purple { width: 40px; height: 40px; font-size: 14px; }
+            .numbers-display { padding: 24px 10px; gap: 6px; }
+            .header h1 { font-size: 19px; }
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>🎰 六合彩號碼生成器</h1>
-    <div class="subtitle">Mark6 Number Generator</div>
-
-    <!-- Mode Selector -->
-    <div class="mode-selector">
-        <button id="modeRandom" class="active" onclick="setMode('random')">🎲 隨機生成</button>
-        <button id="modeDeepseek" onclick="setMode('deepseek')">🤖 DeepSeek</button>
+    <!-- Header -->
+    <div class="header">
+        <h1>🎰 <span>Mark6</span></h1>
+        <span class="badge">v1</span>
     </div>
 
-    <!-- Numbers Display -->
+    <!-- Mode Toggle -->
+    <div class="mode-toggle">
+        <button id="modeRandom" class="active" onclick="setMode('random')">🎲 隨機</button>
+        <button id="modeDeepseek" onclick="setMode('deepseek')">⚡ AI</button>
+    </div>
+
+    <!-- Numbers -->
     <div class="numbers-display" id="numbersDisplay">
         <span class="ball placeholder">01</span>
         <span class="ball placeholder">02</span>
@@ -239,55 +371,53 @@
         <span class="ball placeholder">05</span>
         <span class="ball placeholder">06</span>
         <span class="plus-sign">+</span>
-        <span class="ball special placeholder">07</span>
+        <span class="ball glow-purple placeholder">07</span>
     </div>
 
-    <div class="timestamp" id="timestamp">未生成</div>
+    <div class="timestamp" id="timestamp">—</div>
 
     <!-- Actions -->
     <div class="actions">
-        <button class="btn-primary" onclick="generateNumbers()">🔄 生成號碼</button>
+        <button class="btn-generate" onclick="generateNumbers()">🔄 生成</button>
         <button class="btn-secondary" onclick="copyNumbers()">📋 複製</button>
     </div>
     <div class="actions">
-        <button class="btn-success" onclick="confirmPurchase()">✅ 確認購買</button>
+        <button class="btn-confirm" onclick="confirmPurchase()">✅ 確認購買</button>
     </div>
 
-    <!-- DeepSeek Token Input (Hidden by default) -->
-    <div class="token-input" id="tokenInput">
-        <label>🔑 DeepSeek API Token (optional)</label>
-        <input type="password" id="deepseekToken" placeholder="sk-... 留空用隨機模式" />
+    <!-- Token -->
+    <div class="token-area" id="tokenArea">
+        <label>🔑 DeepSeek Token</label>
+        <input type="password" id="deepseekToken" placeholder="sk-..." />
     </div>
 
-    <div class="info-badge" id="infoBadge">⚡ 模式：隨機生成 (免費)</div>
+    <div class="info-badge" id="infoBadge">⚡ 隨機生成 · 免費</div>
 
     <!-- History -->
     <div class="history">
-        <h3>📊 最近記錄</h3>
+        <h3>📊 記錄</h3>
         <div id="historyList">
-            <div class="history-empty">尚未有記錄</div>
+            <div class="history-empty">未有記錄</div>
         </div>
     </div>
 
-    <div class="footer">數據儲存於瀏覽器 local storage</div>
+    <div class="footer">儲存於本地 · 換機唔跟</div>
 </div>
 
 <script>
     // ============================================================
-    // 核心邏輯
+    // 核心邏輯 (同之前一樣，只係改咗 UI)
     // ============================================================
 
-    let currentMode = 'random';  // 'random' | 'deepseek'
+    let currentMode = 'random';
     let currentNumbers = [];
     let currentSpecial = null;
     let history = JSON.parse(localStorage.getItem('mark6_history') || '[]');
 
-    // 儲存歷史
     function saveHistory() {
         localStorage.setItem('mark6_history', JSON.stringify(history));
     }
 
-    // 生成隨機號碼 (6個 + 1個特別號)
     function generateRandomNumbers() {
         const pool = [];
         for (let i = 1; i <= 49; i++) pool.push(i);
@@ -297,164 +427,121 @@
         return { main, special };
     }
 
-    // 格式化號碼 (補零)
     function formatNumber(n) {
         return String(n).padStart(2, '0');
     }
 
-    // 顯示號碼
     function displayNumbers(main, special) {
         const container = document.getElementById('numbersDisplay');
         const balls = main.map(n =>
-            `<span class="ball">${formatNumber(n)}</span>`
+            `<span class="ball glow-gold">${formatNumber(n)}</span>`
         );
         container.innerHTML = `
             ${balls.join('')}
             <span class="plus-sign">+</span>
-            <span class="ball special">${formatNumber(special)}</span>
+            <span class="ball glow-purple">${formatNumber(special)}</span>
         `;
         document.getElementById('timestamp').textContent =
-            `🕐 生成時間：${new Date().toLocaleString('zh-HK')}`;
+            `🕐 ${new Date().toLocaleString('zh-HK')}`;
     }
 
-    // 生成 (根據當前模式)
     function generateNumbers() {
         if (currentMode === 'deepseek') {
-            // DeepSeek 模式：Call API (或者 fallback 隨機)
-            generateWithDeepseek();
+            const token = document.getElementById('deepseekToken').value.trim();
+            if (!token) {
+                // Fallback 隨機
+                const { main, special } = generateRandomNumbers();
+                currentNumbers = main;
+                currentSpecial = special;
+                displayNumbers(main, special);
+                document.getElementById('infoBadge').textContent = '⚠️ 無 Token，用隨機';
+                return;
+            }
+            // 模擬 AI (實際可改 API)
+            const { main, special } = generateRandomNumbers();
+            currentNumbers = main;
+            currentSpecial = special;
+            displayNumbers(main, special);
+            document.getElementById('infoBadge').textContent = '🤖 AI 生成 · 已連線';
         } else {
             const { main, special } = generateRandomNumbers();
             currentNumbers = main;
             currentSpecial = special;
             displayNumbers(main, special);
-            document.getElementById('infoBadge').textContent = '⚡ 模式：隨機生成 (免費)';
+            document.getElementById('infoBadge').textContent = '⚡ 隨機生成 · 免費';
         }
     }
 
-    // DeepSeek 生成 (示範：用隨機 + 模擬 "AI 分析")
-    function generateWithDeepseek() {
-        // 實際使用時，呢度會 Call DeepSeek API
-        // 但為咗免費 demo，我用隨機 + 加少少 "AI 分析" 嘅感覺
-        const token = document.getElementById('deepseekToken').value.trim();
-        if (!token) {
-            // 冇 Token 就 fallback 隨機
-            const { main, special } = generateRandomNumbers();
-            currentNumbers = main;
-            currentSpecial = special;
-            displayNumbers(main, special);
-            document.getElementById('infoBadge').textContent = '⚠️ 無 Token，使用隨機模式';
-            return;
-        }
-
-        // 模擬 DeepSeek 生成 (實際會 Call API)
-        // 呢度做少少「心理作用」嘅調整：例如加權偏向近期冇出過嘅號碼
-        const { main, special } = generateRandomNumbers();
-        currentNumbers = main;
-        currentSpecial = special;
-        displayNumbers(main, special);
-
-        // 模擬顯示 "DeepSeek 已生成"
-        document.getElementById('infoBadge').textContent =
-            `🤖 DeepSeek 生成 (${new Date().toLocaleString('zh-HK')})`;
-
-        // 顯示實際使用時，要 call API:
-        // const response = await fetch('https://api.deepseek.com/v1/chat/completions', {...});
-        // 但為咗呢個 demo，我哋只用隨機
-        // 你之後可以換成真正嘅 API Call
-    }
-
-    // 複製號碼
     function copyNumbers() {
-        if (currentNumbers.length === 0) {
-            alert('請先生成號碼！');
-            return;
-        }
+        if (currentNumbers.length === 0) { alert('先生成號碼'); return; }
         const text = currentNumbers.map(n => formatNumber(n)).join(',') +
                     ' + ' + formatNumber(currentSpecial);
         navigator.clipboard.writeText(text).then(() => {
             alert('✅ 已複製：' + text);
         }).catch(() => {
-            // Fallback
-            const textarea = document.createElement('textarea');
-            textarea.value = text;
-            document.body.appendChild(textarea);
-            textarea.select();
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            document.body.appendChild(ta);
+            ta.select();
             document.execCommand('copy');
-            document.body.removeChild(textarea);
+            document.body.removeChild(ta);
             alert('✅ 已複製：' + text);
         });
     }
 
-    // 確認購買 (記錄到 History)
     function confirmPurchase() {
-        if (currentNumbers.length === 0) {
-            alert('請先生成號碼！');
-            return;
-        }
+        if (currentNumbers.length === 0) { alert('先生成號碼'); return; }
         const entry = {
             date: new Date().toISOString().slice(0, 10),
             time: new Date().toLocaleTimeString('zh-HK'),
             numbers: currentNumbers.map(n => formatNumber(n)),
             special: formatNumber(currentSpecial),
-            status: 'pending', // pending | win | lose
-            result: null,
+            status: 'pending',
         };
         history.unshift(entry);
-        if (history.length > 50) history.pop(); // 最多保留 50 筆
+        if (history.length > 50) history.pop();
         saveHistory();
         renderHistory();
-        alert('✅ 已記錄購買：' +
-              entry.numbers.join(',') + ' + ' + entry.special);
+        alert('✅ 已記錄：' + entry.numbers.join(',') + ' + ' + entry.special);
     }
 
-    // 顯示歷史記錄
     function renderHistory() {
         const container = document.getElementById('historyList');
         if (history.length === 0) {
-            container.innerHTML = '<div class="history-empty">尚未有記錄</div>';
+            container.innerHTML = '<div class="history-empty">未有記錄</div>';
             return;
         }
-        const items = history.slice(0, 10).map((entry, idx) => {
+        const items = history.slice(0, 10).map((entry) => {
             const statusMap = {
-                'pending': '⏳ 待開獎',
-                'win': '🎉 中獎',
-                'lose': '😅 冇中',
+                'pending': '<span class="status pending">待開</span>',
+                'win': '<span class="status win">🎉 中</span>',
+                'lose': '<span class="status lose">✖</span>',
             };
-            const statusText = statusMap[entry.status] || '⏳ 待開獎';
-            const statusClass = entry.status === 'win' ? 'win' :
-                               entry.status === 'lose' ? 'lose' : 'pending';
+            const statusHtml = statusMap[entry.status] || statusMap['pending'];
             return `
                 <div class="history-item">
                     <span>${entry.date}</span>
-                    <span class="numbers">${entry.numbers.join(',')} + ${entry.special}</span>
-                    <span class="result ${statusClass}">${statusText}</span>
+                    <span class="nums">${entry.numbers.join(',')} + ${entry.special}</span>
+                    ${statusHtml}
                 </div>
             `;
         });
         container.innerHTML = items.join('');
     }
 
-    // 切換模式
     function setMode(mode) {
         currentMode = mode;
-        document.getElementById('modeRandom').className =
-            mode === 'random' ? 'active' : '';
-        document.getElementById('modeDeepseek').className =
-            mode === 'deepseek' ? 'active' : '';
-        document.getElementById('tokenInput').style.display =
-            mode === 'deepseek' ? 'block' : 'none';
+        document.getElementById('modeRandom').className = mode === 'random' ? 'active' : '';
+        document.getElementById('modeDeepseek').className = mode === 'deepseek' ? 'active' : '';
+        document.getElementById('tokenArea').style.display = mode === 'deepseek' ? 'block' : 'none';
         document.getElementById('infoBadge').textContent =
-            mode === 'random' ? '⚡ 模式：隨機生成 (免費)' : '🤖 模式：DeepSeek (需 Token)';
-        // 隨機生成一組
+            mode === 'random' ? '⚡ 隨機生成 · 免費' : '🤖 AI 模式 · 需 Token';
         generateNumbers();
     }
 
-    // 初始化
+    // Init
     renderHistory();
     generateNumbers();
-
-    // 加返個簡單嘅 onload 提示
-    console.log('🎰 六合彩號碼生成器已啟動！');
 </script>
 
 </body>
