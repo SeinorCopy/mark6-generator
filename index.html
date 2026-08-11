@@ -389,36 +389,55 @@
             showToast('⚠️ 請先生成號碼');
             return;
         }
-
+    
         const webAppUrl = document.getElementById('webAppUrl').value.trim();
         if (!webAppUrl) {
             showToast('⚠️ 請先喺 API 設定填寫 Web App URL');
             return;
         }
-
-        // Send 去 Google Sheet
-        fetch(webAppUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: new URLSearchParams({
-                purchase_date: new Date().toISOString().slice(0, 10),
-                numbers: currentNumbers.map(n => formatNumber(n)).join(','),
-                status: 'Waiting'
+    
+        // Step 1: Call 開獎1868 API 拎下期資料
+        fetch('https://www.kj1868.com/openapi/drawLottery/xg6/last.kj?page=1&pageSize=1')
+            .then(response => response.json())
+            .then(apiData => {
+                let drawDate = '';
+                let period = '';
+                
+                if (apiData.status === '10' && apiData.data && apiData.data.data && apiData.data.data.length > 0) {
+                    const latest = apiData.data.data[0];
+                    drawDate = latest.lottery_date || '';   // e.g. "2026-08-11"
+                    period = latest.period || '';           // e.g. "26/087"
+                } else {
+                    console.warn('⚠️ 開獎1868 API 回傳異常:', apiData);
+                }
+                
+                // Step 2: Send 去 Google Sheet (連埋 drawDate 同 period)
+                return fetch(webAppUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({
+                        purchase_date: new Date().toISOString().slice(0, 10),
+                        numbers: currentNumbers.map(n => formatNumber(n)).join(','),
+                        draw_date: drawDate,
+                        period: period,
+                        status: 'Waiting'
+                    })
+                });
             })
-        })
-        .then(response => response.text())
-        .then(data => {
-            if (data === 'Success') {
-                showToast('✅ 已記錄：' + currentNumbers.map(n => formatNumber(n)).join(','));
-            } else {
-                showToast('⚠️ 寫入失敗：' + data);
-            }
-        })
-        .catch(err => {
-            showToast('⚠️ 網絡錯誤：' + err.message);
-        });
-
-        // 自動生成下一組
+            .then(response => response.text())
+            .then(data => {
+                if (data === 'Success') {
+                    showToast('✅ 已記錄：' + currentNumbers.map(n => formatNumber(n)).join(','));
+                } else {
+                    showToast('⚠️ 寫入失敗：' + data);
+                }
+            })
+            .catch(err => {
+                console.error('❌ 錯誤:', err);
+                showToast('⚠️ 網絡錯誤：' + err.message);
+            });
+    
+        // 自動生成下一組 (唔使等回應)
         setTimeout(() => generateNumbers(), 500);
     }
 
