@@ -1,0 +1,14 @@
+name: Mark6 Auto Sync
+
+on:
+  schedule:
+    - cron: '45 13 * * 2,4,6'
+  workflow_dispatch:
+
+jobs:
+  sync-job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call Google Apps Script
+        run: |
+          curl -L -s "${{ secrets.MARK6_URL }}"
