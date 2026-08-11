@@ -389,35 +389,38 @@
             showToast('⚠️ 請先生成號碼');
             return;
         }
-    
+
         const webAppUrl = document.getElementById('webAppUrl').value.trim();
         if (!webAppUrl) {
             showToast('⚠️ 請先喺 API 設定填寫 Web App URL');
             return;
         }
-    
-        // Step 1: Call 開獎1868 API 拎下期資料
-    fetch(webAppUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({
-            purchase_date: new Date().toISOString().slice(0, 10),
-            numbers: currentNumbers.map(n => formatNumber(n)).join(','),
-            status: 'Waiting'
+
+        // Send 去 Google Sheet
+        fetch(webAppUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({
+                purchase_date: new Date().toISOString().slice(0, 10),
+                numbers: currentNumbers.map(n => formatNumber(n)).join(','),
+                status: 'Waiting'
+            })
         })
-    })
-    .then(response => response.text())
-    .then(data => {
-        if (data === 'Success') {
-            showToast('✅ 已記錄：' + currentNumbers.map(n => formatNumber(n)).join(','));
-        } else {
-            showToast('⚠️ 寫入失敗：' + data);
-        }
-    })
-    .catch(err => {
-        console.error('❌ 錯誤:', err);
-        showToast('⚠️ 網絡錯誤：' + err.message);
-    });
+        .then(response => response.text())
+        .then(data => {
+            if (data === 'Success') {
+                showToast('✅ 已記錄：' + currentNumbers.map(n => formatNumber(n)).join(','));
+            } else {
+                showToast('⚠️ 寫入失敗：' + data);
+            }
+        })
+        .catch(err => {
+            showToast('⚠️ 網絡錯誤：' + err.message);
+        });
+
+        // 自動生成下一組
+        setTimeout(() => generateNumbers(), 500);
+    }
 
     // ===== API Settings =====
     function loadApiSettingsInternal() {
