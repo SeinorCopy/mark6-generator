@@ -3,15 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Mark 6</title>
-    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png" />
-    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png" />
-    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
-    <link rel="manifest" href="site.webmanifest" />
-    <meta name="apple-mobile-web-app-title" content="Mark 6" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="theme-color" content="#f8f8f5" />
+    <title>靈籤 · Mark 6</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600&display=swap" rel="stylesheet" />
     <style>
@@ -44,7 +36,7 @@
             align-items: baseline;
             margin-bottom: 28px;
             padding-bottom: 12px;
-            border-bottom: 1px solid #eaeaE5;
+            border-bottom: 1px solid #eaeae5;
         }
         .header h1 {
             font-size: 18px;
@@ -54,16 +46,16 @@
         }
         .header h1 span { font-weight: 500; }
         .header .badge {
-            font-size: 10px;
+            font-size: 9px;
             font-weight: 400;
             color: #b0b0a8;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
             background: #f4f4f0;
-            padding: 2px 12px;
+            padding: 4px 10px;
             border-radius: 100px;
+            border: 1px solid #eaeae5;
         }
 
-        /* 號碼盤 — 骰仔 6 排列 (2行 x 3個) */
         .numbers-display {
             background: #fafaf7;
             border-radius: 24px;
@@ -71,10 +63,31 @@
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 12px;
-            margin-bottom: 12px;
+            margin-bottom: 6px;
             border: 1px solid #efefe9;
             min-height: 180px;
             place-items: center;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        .numbers-display::before {
+            content: '⏺';
+            position: absolute;
+            top: 8px;
+            right: 14px;
+            font-size: 10px;
+            color: #e0e0d8;
+            letter-spacing: 2px;
+        }
+        .numbers-display.shake {
+            animation: shake 0.5s ease-in-out;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-8px) rotate(-2deg); }
+            40% { transform: translateX(8px) rotate(2deg); }
+            60% { transform: translateX(-5px); }
+            80% { transform: translateX(5px); }
         }
 
         .ball {
@@ -89,36 +102,139 @@
             background: #ffffff;
             border: 2px solid #e0e0d8;
             color: #2c2c2c;
-            transition: all 0.15s ease;
+            transition: all 0.3s ease;
             letter-spacing: 0.5px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
         }
-        .ball.placeholder { opacity: 0.2; border-color: #e0e0d8; }
+        .ball.placeholder {
+            opacity: 0.3;
+            border-color: #e0e0d8;
+            font-size: 20px;
+            color: #c0c0b8;
+        }
+        .ball.reveal {
+            animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+        @keyframes popIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
         .ball.red   { border-color: #d32f2f; color: #d32f2f; }
         .ball.blue  { border-color: #1976d2; color: #1976d2; }
         .ball.green { border-color: #388e3c; color: #388e3c; }
         .ball.yellow{ border-color: #f9a825; color: #f9a825; }
         .ball.purple{ border-color: #7b1fa2; color: #7b1fa2; }
 
-        .timestamp {
-            font-size: 13px;
+        .meta-row {
+            display: flex;
+            justify-content: flex-end;
+            font-size: 12px;
             font-weight: 300;
             color: #b0b0a8;
-            text-align: center;
-            margin-bottom: 24px;
+            padding: 8px 4px 12px 4px;
+            border-bottom: 1px dashed #efefe9;
+            margin-bottom: 12px;
+            min-height: 36px;
+        }
+
+        .fortune-area {
+            background: #fafaf7;
+            border-radius: 16px;
+            padding: 18px 20px;
+            margin: 12px 0 16px 0;
+            border: 1px solid #efefe9;
+            min-height: 90px;
+            position: relative;
+            text-align: left;
+            transition: all 0.3s ease;
+        }
+        .fortune-area.hidden {
+            opacity: 0.3;
+            min-height: 70px;
+        }
+        .fortune-area .placeholder-text {
+            color: #c0c0b8;
+            font-size: 14px;
+            font-weight: 300;
             letter-spacing: 0.5px;
         }
+        .fortune-area::after {
+            content: '◆';
+            position: absolute;
+            bottom: 10px;
+            right: 16px;
+            font-size: 8px;
+            color: #e0e0d8;
+        }
+        .fortune-title {
+            font-size: 13px;
+            font-weight: 500;
+            color: #b0b0a8;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+        }
+        .fortune-title .seal {
+            display: inline-block;
+            background: #d4a86a;
+            color: #ffffff;
+            padding: 0 12px;
+            border-radius: 12px;
+            font-size: 10px;
+            letter-spacing: 1px;
+            margin-left: 6px;
+            font-weight: 400;
+        }
+        .fortune-text {
+            font-size: 18px;
+            font-weight: 400;
+            color: #2c2c2c;
+            line-height: 1.6;
+            letter-spacing: 0.5px;
+        }
+        .fortune-sub {
+            font-size: 12px;
+            font-weight: 300;
+            color: #b0b0a8;
+            margin-top: 6px;
+            letter-spacing: 0.3px;
+        }
+
+        .rating-row {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            padding: 8px 0 4px 0;
+            font-size: 11px;
+            color: #b0b0a8;
+            letter-spacing: 0.3px;
+        }
+        .rating-row .item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .rating-row .dot {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #d4a86a;
+        }
+        .rating-row .dot.green { background: #388e3c; }
+        .rating-row .dot.gray { background: #d0d0c8; }
+        .rating-row.hidden { display: none; }
 
         .actions {
             display: flex;
             gap: 8px;
-            margin-bottom: 8px;
+            margin: 12px 0 8px 0;
         }
         .actions button {
             flex: 1;
             padding: 14px 0;
             border: 1px solid #e0e0d8;
             border-radius: 16px;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 400;
             letter-spacing: 0.5px;
             cursor: pointer;
@@ -126,27 +242,50 @@
             background: #ffffff;
             color: #2c2c2c;
         }
-        .actions button:hover { background: #f4f4f0; }
-        .actions button:active { transform: scale(0.97); }
+        .actions button:hover:not(:disabled) { background: #f4f4f0; }
+        .actions button:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
 
-        .btn-confirm {
+        .btn-primary {
             border-color: #d4a86a !important;
             color: #a67c3e !important;
             background: #fdfbf7 !important;
-            width: 100%;
         }
-        .btn-confirm:hover { background: #f8f4ec !important; }
+        .btn-primary:hover:not(:disabled) { background: #f8f4ec !important; }
+
+        .btn-secondary {
+            border-color: #e0e0d8 !important;
+            color: #888 !important;
+            background: #fafaf7 !important;
+        }
+        .btn-secondary:hover:not(:disabled) { background: #f4f4f0 !important; }
 
         .info-badge {
             margin-top: 16px;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 300;
             color: #c0c0b8;
             text-align: center;
             letter-spacing: 0.5px;
         }
+        .info-badge .divider {
+            margin: 0 8px;
+            color: #e0e0d8;
+        }
 
-        /* Toast */
+        .footer {
+            margin-top: 24px;
+            padding-top: 14px;
+            border-top: 1px solid #efefe9;
+            font-size: 9px;
+            font-weight: 300;
+            color: #d8d8d0;
+            text-align: center;
+            letter-spacing: 1px;
+        }
+
         .toast {
             position: fixed;
             bottom: 30px;
@@ -172,9 +311,8 @@
             transform: translateX(-50%) translateY(0px);
         }
 
-        /* API Settings — 淨返 Google Sheet */
         .api-section {
-            margin-top: 28px;
+            margin-top: 20px;
             padding-top: 16px;
             border-top: 1px solid #efefe9;
         }
@@ -250,21 +388,14 @@
             color: #2c2c2c;
         }
 
-        .footer {
-            margin-top: 16px;
-            font-size: 9px;
-            font-weight: 300;
-            color: #d8d8d0;
-            text-align: center;
-            letter-spacing: 1px;
-        }
-
         @media (max-width: 420px) {
             .container { padding: 28px 18px 24px; }
-            .ball { width: 54px; height: 54px; font-size: 20px; border-width: 2px; }
+            .ball { width: 54px; height: 54px; font-size: 20px; }
             .numbers-display { padding: 24px 8px; gap: 8px; }
             .header h1 { font-size: 16px; }
-            .actions button { font-size: 15px; }
+            .fortune-text { font-size: 16px; }
+            .actions button { font-size: 14px; padding: 12px 0; }
+            .rating-row { font-size: 10px; gap: 10px; flex-wrap: wrap; }
             .toast { font-size: 12px; padding: 10px 20px; white-space: normal; }
         }
     </style>
@@ -275,30 +406,52 @@
 
 <div class="container">
     <div class="header">
-        <h1><span>Mark 6</span></h1>
-        <span class="badge">version 1.0</span>
+        <h1><span>靈籤</span> · Mark 6</h1>
+        <span class="badge">Model：A-RES 6</span>
     </div>
 
-    <!-- 號碼盤 — 骰仔 6 排列 -->
     <div class="numbers-display" id="numbersDisplay">
-        <span class="ball placeholder">01</span>
-        <span class="ball placeholder">02</span>
-        <span class="ball placeholder">03</span>
-        <span class="ball placeholder">04</span>
-        <span class="ball placeholder">05</span>
-        <span class="ball placeholder">06</span>
+        <span class="ball placeholder">?</span>
+        <span class="ball placeholder">?</span>
+        <span class="ball placeholder">?</span>
+        <span class="ball placeholder">?</span>
+        <span class="ball placeholder">?</span>
+        <span class="ball placeholder">?</span>
     </div>
 
-    <div class="timestamp" id="timestamp">—</div>
+    <div class="meta-row">
+        <span id="timestampDisplay">—</span>
+    </div>
 
-    <!-- 淨返一個按鈕 -->
+    <div class="fortune-area hidden" id="fortuneArea">
+        <div class="fortune-title" id="fortuneTitle">
+            📜 第--籤 <span class="seal">--</span>
+        </div>
+        <div class="fortune-text" id="fortuneText">
+            <span class="placeholder-text">誠心求籤，靈機一動</span>
+        </div>
+        <div class="fortune-sub" id="fortuneSub">—</div>
+    </div>
+
+    <div class="rating-row hidden" id="ratingRow">
+        <span class="item"><span class="dot"></span> 數據信心 <span id="rating1">--</span>%</span>
+        <span class="item"><span class="dot green"></span> 走勢吻合 <span id="rating2">--</span>%</span>
+        <span class="item"><span class="dot gray"></span> 穩定度 <span id="rating3">--</span>%</span>
+    </div>
+
     <div class="actions">
-        <button class="btn-confirm" onclick="confirmPurchase()">確認投注</button>
+        <button class="btn-primary" id="drawBtn">🙏 求籤</button>
+        <button class="btn-secondary" id="shareBtn" disabled>🔗 分享籤文</button>
     </div>
 
-    <div class="info-badge" id="infoBadge"></div>
+    <div class="info-badge">
+        💡 誠心求籤，靈機一動
+        <span class="divider">·</span>
+        每日一籤
+        <span class="divider">·</span>
+        以數據為本
+    </div>
 
-    <!-- API Settings — 淨返 Google Sheet Web App URL -->
     <details class="api-section" id="apiSection">
         <summary>
             <span>⚙️ API 設定</span>
@@ -307,49 +460,59 @@
         <div class="api-body">
             <div class="field">
                 <label>Google Sheet Web App URL</label>
-                <input type="text" id="webAppUrl" placeholder="https://script.google.com/macros/s/.../exec" />
+                <input type="text" id="webAppUrl" placeholder="https://script.google.com/macros/s/.../exec" value="https://script.google.com/macros/s/AKfycbxWgRGUJaB4X9yYcRl3n0RYvJrKZfSN7FQy9U18Q_Z8g-EStUBrbHWpxsEpOn9B87EK/exec" />
             </div>
-            <button class="btn-save-api" onclick="saveApiSettings()">儲存設定</button>
+            <button class="btn-save-api" id="saveApiBtn">儲存設定</button>
             <div style="font-size:10px; color:#d0d0c8; text-align:center; margin-top:4px;">
                 資料只儲存於瀏覽器
             </div>
         </div>
     </details>
 
-    <div class="footer">local storage</div>
+    <div class="footer">local storage · 資料只儲存於瀏覽器</div>
 </div>
 
 <script>
     // ============================================================
-    // 核心邏輯
+    // 權重數據（你條 JSON）
+    // ============================================================
+    const WEIGHTS = {
+        "1": 55.03, "2": 54.57, "3": 54.68, "4": 41.16, "5": 42.34,
+        "6": 56.46, "7": 56.97, "8": 52.62, "9": 45.89, "10": 42.01,
+        "11": 51.71, "12": 43.88, "13": 55.32, "14": 37.27, "15": 45.44,
+        "16": 42.28, "17": 45.90, "18": 57.18, "19": 52.10, "20": 53.68,
+        "21": 57.90, "22": 40.03, "23": 46.29, "24": 45.64, "25": 45.08,
+        "26": 48.50, "27": 50.20, "28": 44.70, "29": 47.80, "30": 52.10,
+        "31": 43.50, "32": 49.60, "33": 51.30, "34": 46.80, "35": 50.40,
+        "36": 45.90, "37": 42.30, "38": 53.20, "39": 48.90, "40": 44.60,
+        "41": 41.80, "42": 50.70, "43": 47.20, "44": 55.10, "45": 54.90,
+        "46": 49.30, "47": 42.90, "48": 46.50, "49": 51.80
+    };
+
+    // ============================================================
+    // 核心功能
     // ============================================================
 
-    let currentNumbers = [];
-
-    // ===== Toast =====
+    const toastEl = document.getElementById('toast');
     let toastTimer = null;
+    let isRevealed = false;
 
     function showToast(message) {
-        const el = document.getElementById('toast');
-        el.textContent = message;
-        el.classList.add('show');
+        toastEl.textContent = message;
+        toastEl.classList.add('show');
         clearTimeout(toastTimer);
         toastTimer = setTimeout(() => {
-            el.classList.remove('show');
-        }, 1800);
+            toastEl.classList.remove('show');
+        }, 2000);
     }
 
-    // ===== 六合彩顏色 =====
+    // ===== 顏色對應 =====
     const redSet = new Set([1,2,7,8,12,13,18,19,23,24,29,30,34,35,40,45,46]);
     const blueSet = new Set([3,4,9,10,14,15,20,25,26,31,36,37,41,42,47,48]);
-    // 其餘為綠波 (5,6,11,16,17,21,22,27,28,32,33,38,39,43,44,49)
-    // 黃波: 30-39 (但已有部份喺紅/藍，呢度只係示範，上面 Set 已覆蓋)
-    // 紫波: 40-49 (已覆蓋)
 
     function getBallColor(n) {
         if (redSet.has(n)) return 'red';
         if (blueSet.has(n)) return 'blue';
-        // 綠波
         return 'green';
     }
 
@@ -357,95 +520,219 @@
         return String(n).padStart(2, '0');
     }
 
-    // ===== 號碼生成 =====
-    function generateRandomNumbers() {
-        const pool = [];
-        for (let i = 1; i <= 49; i++) pool.push(i);
-        const shuffled = pool.sort(() => Math.random() - 0.5);
-        return shuffled.slice(0, 6).sort((a, b) => a - b);
+    // ===== 加權抽樣（用你條 JSON） =====
+    function weightedSample() {
+        const numbers = Object.keys(WEIGHTS).map(Number);
+        let totalWeight = numbers.reduce((sum, num) => sum + WEIGHTS[num], 0);
+        const selected = [];
+        const remaining = [...numbers];
+
+        for (let i = 0; i < 6; i++) {
+            let rand = Math.random() * totalWeight;
+            let cumSum = 0;
+            for (let j = 0; j < remaining.length; j++) {
+                cumSum += WEIGHTS[remaining[j]];
+                if (rand <= cumSum) {
+                    selected.push(remaining[j]);
+                    totalWeight -= WEIGHTS[remaining[j]];
+                    remaining.splice(j, 1);
+                    break;
+                }
+            }
+        }
+        return selected.sort((a, b) => a - b);
     }
 
-    function displayNumbers(main) {
+    // ===== 籤文庫（強制兩行） =====
+    const FORTUNES = [
+        { level: '上吉', text: '六數匯聚，氣運亨通，此注藏鋒，靜待佳音。', sub: '時機成熟，宜進不宜退。' },
+        { level: '中吉', text: '風起雲湧，數在其中，守得雲開，自見月明。', sub: '耐心等待，莫急於一時。' },
+        { level: '下吉', text: '山高水遠，數有浮沉，靜心以待，自有轉機。', sub: '平常心待之，得失皆緣。' },
+        { level: '上上', text: '天時地利，人和數合，此注一出，萬事皆成。', sub: '氣勢如虹，大膽一試。' },
+        { level: '中平', text: '數有起伏，運有高低，守正待時，終有可期。', sub: '平穩發展，不宜冒進。' }
+    ];
+
+    function getRandomFortune() {
+        return FORTUNES[Math.floor(Math.random() * FORTUNES.length)];
+    }
+
+    // ===== 顯示號碼 =====
+    function displayNumbers(numbers) {
         const container = document.getElementById('numbersDisplay');
-        const balls = main.map(n =>
-            `<span class="ball ${getBallColor(n)}">${formatNumber(n)}</span>`
-        );
-        container.innerHTML = balls.join('');
-        document.getElementById('timestamp').textContent =
+        container.innerHTML = numbers.map((n, i) =>
+            `<span class="ball ${getBallColor(n)} reveal" style="animation-delay:${i * 0.08}s">${formatNumber(n)}</span>`
+        ).join('');
+        document.getElementById('timestampDisplay').textContent =
             `🕐 ${new Date().toLocaleString('zh-HK')}`;
     }
 
-    // 每次 load 自動生成
-    function generateNumbers() {
-        const main = generateRandomNumbers();
-        currentNumbers = main;
-        displayNumbers(main);
-        document.getElementById('infoBadge').textContent = '';
+    // ===== 顯示籤文（強制兩行） =====
+    function displayFortune(fortune) {
+        const area = document.getElementById('fortuneArea');
+        area.classList.remove('hidden');
+        document.getElementById('fortuneTitle').innerHTML =
+            `📜 第${String(Math.floor(Math.random() * 99) + 1).padStart(2, '0')}籤 <span class="seal">${fortune.level}</span>`;
+        
+        // 強制兩行：將籤文分為「前半」同「後半」
+        const text = fortune.text;
+        const firstComma = text.indexOf('，');
+        const secondComma = text.indexOf('，', firstComma + 1);
+
+        let line1, line2;
+        if (secondComma !== -1) {
+            line1 = text.substring(0, secondComma);
+            line2 = text.substring(secondComma + 1);
+        } else if (firstComma !== -1) {
+            line1 = text.substring(0, firstComma);
+            line2 = text.substring(firstComma + 1);
+        } else {
+            line1 = text;
+            line2 = '';
+        }
+
+        document.getElementById('fortuneText').innerHTML =
+            `「${line1}，<br />${line2}」`;
+
+        document.getElementById('fortuneSub').textContent =
+            `— 綜合評級：${['A+','A-','B+','B','B-'][Math.floor(Math.random()*5)]} · 信號強度：${['強','中強','中','中弱'][Math.floor(Math.random()*4)]}`;
     }
 
-    // ===== 確認投注 (用 webAppUrl 輸入框) =====
-    function confirmPurchase() {
-        if (currentNumbers.length === 0) {
-            showToast('⚠️ 請先生成號碼');
-            return;
-        }
+    // ===== 顯示評級 =====
+    function displayRatings() {
+        const row = document.getElementById('ratingRow');
+        row.classList.remove('hidden');
+        document.getElementById('rating1').textContent = Math.floor(Math.random() * 20) + 75;
+        document.getElementById('rating2').textContent = Math.floor(Math.random() * 20) + 75;
+        document.getElementById('rating3').textContent = Math.floor(Math.random() * 20) + 75;
+    }
 
+    // ===== 記錄去 Google Sheet（淨係 send C 同 D） =====
+    function saveToGoogleSheet(numbers, fortune) {
         const webAppUrl = document.getElementById('webAppUrl').value.trim();
         if (!webAppUrl) {
-            showToast('⚠️ 請先喺 API 設定填寫 Web App URL');
-            return;
+            showToast('⚠️ 請先設定 Google Sheet Web App URL');
+            return Promise.reject('No URL');
         }
 
-        // Send 去 Google Sheet
-        fetch(webAppUrl, {
+        const today = new Date().toISOString().slice(0, 10);
+        const payload = {
+            purchased_date: today,
+            numbers: numbers.map(n => formatNumber(n)).join(','),
+            fortune_level: fortune.level,
+            fortune_text: fortune.text
+        };
+
+        return fetch(webAppUrl, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: new URLSearchParams({
-                purchase_date: new Date().toISOString().slice(0, 10),
-                numbers: currentNumbers.map(n => formatNumber(n)).join(','),
-                status: 'Waiting'
-            })
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
         })
         .then(response => response.text())
         .then(data => {
             if (data === 'Success') {
-                showToast('✅ 已記錄：' + currentNumbers.map(n => formatNumber(n)).join(','));
+                showToast('✅ 已記錄：' + numbers.map(n => formatNumber(n)).join(','));
             } else {
                 showToast('⚠️ 寫入失敗：' + data);
+                throw new Error(data);
             }
         })
         .catch(err => {
             showToast('⚠️ 網絡錯誤：' + err.message);
+            throw err;
         });
+    }
 
-        // 自動生成下一組
-        setTimeout(() => generateNumbers(), 500);
+    // ===== 求籤主流程 =====
+    function handleDraw() {
+        if (isRevealed) {
+            showToast('🙏 今日已求籤，聽日再嚟');
+            return;
+        }
+
+        const container = document.getElementById('numbersDisplay');
+        const shareBtn = document.getElementById('shareBtn');
+
+        container.classList.add('shake');
+
+        setTimeout(() => {
+            container.classList.remove('shake');
+
+            const numbers = weightedSample();
+            const fortune = getRandomFortune();
+
+            displayNumbers(numbers);
+            displayFortune(fortune);
+            displayRatings();
+
+            // 記錄去 Google Sheet
+            saveToGoogleSheet(numbers, fortune);
+
+            isRevealed = true;
+            shareBtn.disabled = false;
+            showToast('🙏 靈籤已降');
+
+            localStorage.setItem('mark6_today', new Date().toISOString().slice(0, 10));
+
+        }, 500);
+    }
+
+    // ===== 分享 =====
+    function handleShare() {
+        const numbers = document.querySelectorAll('.numbers-display .ball');
+        const nums = Array.from(numbers).map(el => el.textContent).join('、');
+        const fortuneText = document.getElementById('fortuneText').textContent.trim();
+
+        if (navigator.share) {
+            navigator.share({
+                title: '靈籤 · Mark 6',
+                text: `今日靈籤：${nums}\n${fortuneText}`
+            }).catch(() => {});
+        } else {
+            const text = `靈籤 · Mark 6\n號碼：${nums}\n${fortuneText}`;
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('📋 已複製到剪貼簿');
+            }).catch(() => {
+                showToast('📤 請手動複製');
+            });
+        }
     }
 
     // ===== API Settings =====
-    function loadApiSettingsInternal() {
+    function loadApiSettings() {
         try {
             const raw = localStorage.getItem('mark6_api_settings');
-            if (!raw) return {};
-            return JSON.parse(raw);
-        } catch (e) { return {}; }
+            if (!raw) return;
+            const settings = JSON.parse(raw);
+            if (settings.webAppUrl) {
+                document.getElementById('webAppUrl').value = settings.webAppUrl;
+            }
+        } catch (e) {}
     }
 
     function saveApiSettings() {
         const webAppUrl = document.getElementById('webAppUrl').value.trim();
-        const settings = { webAppUrl };
-        localStorage.setItem('mark6_api_settings', JSON.stringify(settings));
+        localStorage.setItem('mark6_api_settings', JSON.stringify({ webAppUrl }));
         showToast('💾 設定已儲存');
     }
 
-    function loadApiSettingsUI() {
-        const settings = loadApiSettingsInternal();
-        document.getElementById('webAppUrl').value = settings.webAppUrl || '';
+    // ===== 檢查今日係咪已經求咗 =====
+    function checkToday() {
+        const today = new Date().toISOString().slice(0, 10);
+        const saved = localStorage.getItem('mark6_today');
+        if (saved === today) {
+            isRevealed = true;
+            document.getElementById('shareBtn').disabled = false;
+        }
     }
 
+    // ===== Event Binding =====
+    document.getElementById('drawBtn').addEventListener('click', handleDraw);
+    document.getElementById('shareBtn').addEventListener('click', handleShare);
+    document.getElementById('saveApiBtn').addEventListener('click', saveApiSettings);
+
     // ===== Init =====
-    generateNumbers();  // <-- 確保一開波有顏色同數字
-    loadApiSettingsUI();
+    loadApiSettings();
+    checkToday();
 </script>
 
 </body>
