@@ -476,18 +476,34 @@
     // ============================================================
     // 權重數據（你條 JSON）
     // ============================================================
-    const WEIGHTS = {
-        "1": 55.03, "2": 54.57, "3": 54.68, "4": 41.16, "5": 42.34,
-        "6": 56.46, "7": 56.97, "8": 52.62, "9": 45.89, "10": 42.01,
-        "11": 51.71, "12": 43.88, "13": 55.32, "14": 37.27, "15": 45.44,
-        "16": 42.28, "17": 45.90, "18": 57.18, "19": 52.10, "20": 53.68,
-        "21": 57.90, "22": 40.03, "23": 46.29, "24": 45.64, "25": 45.08,
-        "26": 48.50, "27": 50.20, "28": 44.70, "29": 47.80, "30": 52.10,
-        "31": 43.50, "32": 49.60, "33": 51.30, "34": 46.80, "35": 50.40,
-        "36": 45.90, "37": 42.30, "38": 53.20, "39": 48.90, "40": 44.60,
-        "41": 41.80, "42": 50.70, "43": 47.20, "44": 55.10, "45": 54.90,
-        "46": 49.30, "47": 42.90, "48": 46.50, "49": 51.80
-    };
+//    const WEIGHTS = {
+//        "1": 55.03, "2": 54.57, "3": 54.68, "4": 41.16, "5": 42.34,
+//        "6": 56.46, "7": 56.97, "8": 52.62, "9": 45.89, "10": 42.01,
+//        "11": 51.71, "12": 43.88, "13": 55.32, "14": 37.27, "15": 45.44,
+//        "16": 42.28, "17": 45.90, "18": 57.18, "19": 52.10, "20": 53.68,
+//        "21": 57.90, "22": 40.03, "23": 46.29, "24": 45.64, "25": 45.08,
+//        "26": 48.50, "27": 50.20, "28": 44.70, "29": 47.80, "30": 52.10,
+//        "31": 43.50, "32": 49.60, "33": 51.30, "34": 46.80, "35": 50.40,
+//        "36": 45.90, "37": 42.30, "38": 53.20, "39": 48.90, "40": 44.60,
+//        "41": 41.80, "42": 50.70, "43": 47.20, "44": 55.10, "45": 54.90,
+//        "46": 49.30, "47": 42.90, "48": 46.50, "49": 51.80
+//    };
+    const WEIGHTS_API_URL = "https://script.google.com/macros/s/AKfycbxWgRGUJaB4X9yYcRl3n0RYvJrKZfSN7FQy9U18Q_Z8g-EStUBrbHWpxsEpOn9B87EK/exec";
+
+    async function fetchLatestWeights() {
+        try {
+            const response = await fetch(WEIGHTS_API_URL);
+            const data = await response.json();
+            // 假設 GAS 回傳的 JSON 結構為 { "1": 55.03, "2": 54.57 ... } 或直接是 weights 物件
+            WEIGHTS = data.weights || data; 
+        } catch (err) {
+            console.error("無法取得線上比重，請檢查 API：", err);
+            showToast('⚠️ 獲取比重失敗，請重試');
+            throw err;
+        }
+    }
+
+    
 
     // ============================================================
     // 核心功能
@@ -520,10 +536,17 @@
         return String(n).padStart(2, '0');
     }
 
-    // ===== 加權抽樣（用你條 JSON） =====
+    // ===== 加權抽樣(使用動態抓取的 WEIGHTS) =====
     function weightedSample() {
         const numbers = Object.keys(WEIGHTS).map(Number);
-        let totalWeight = numbers.reduce((sum, num) => sum + WEIGHTS[num], 0);
+        
+        // 如果抓不到數據的防呆機制
+        if (numbers.length === 0) {
+            showToast('⚠️ 未能載入比重數據');
+            return [];
+        }
+
+        let totalWeight = numbers.reduce((sum, num) => sum + Number(WEIGHTS[num]), 0);
         const selected = [];
         const remaining = [...numbers];
 
@@ -531,10 +554,11 @@
             let rand = Math.random() * totalWeight;
             let cumSum = 0;
             for (let j = 0; j < remaining.length; j++) {
-                cumSum += WEIGHTS[remaining[j]];
+                const w = Number(WEIGHTS[remaining[j]]);
+                cumSum += w;
                 if (rand <= cumSum) {
                     selected.push(remaining[j]);
-                    totalWeight -= WEIGHTS[remaining[j]];
+                    totalWeight -= w;
                     remaining.splice(j, 1);
                     break;
                 }
@@ -549,7 +573,18 @@
         { level: '中吉', text: '風起雲湧，數在其中，守得雲開，自見月明。', sub: '耐心等待，莫急於一時。' },
         { level: '下吉', text: '山高水遠，數有浮沉，靜心以待，自有轉機。', sub: '平常心待之，得失皆緣。' },
         { level: '上上', text: '天時地利，人和數合，此注一出，萬事皆成。', sub: '氣勢如虹，大膽一試。' },
-        { level: '中平', text: '數有起伏，運有高低，守正待時，終有可期。', sub: '平穩發展，不宜冒進。' }
+        { level: '中平', text: '數有起伏，運有高低，守正待時，終有可期。', sub: '平穩發展，不宜冒進。' },
+        { level: '上吉', text: '東風入戶，喜氣盈門，此數當旺，百事皆順。', sub: '順勢而為，自有收穫。' },
+        { level: '中吉', text: '月朗星稀，前路漸明，守得雲散，終見天青。', sub: '堅持不懈，柳暗花明。' },
+        { level: '下吉', text: '流水無心，落花有意，順其自然，莫強求之。', sub: '隨緣而行，心安理得。' },
+        { level: '上上', text: '龍騰虎躍，風雲際會，此數當紅，勢如破竹。', sub: '乘風破浪，勇往直前。' },
+        { level: '中平', text: '山重水複，疑無路徑，柳暗花明，又一村莊。', sub: '轉機將至，不必灰心。' },
+        { level: '上吉', text: '春風化雨，萬物復甦，此數滋潤，福澤深厚。', sub: '積善之家，必有餘慶。' },
+        { level: '中吉', text: '靜水深流，暗藏玄機，不動聲色，自有天機。', sub: '韜光養晦，待時而動。' },
+        { level: '下吉', text: '浮雲蔽日，暫見昏暗，待風吹散，光明再現。', sub: '忍耐一時，自有轉機。' },
+        { level: '中平', text: '棋局未定，勝負難分，步步為營，穩中求勝。', sub: '不急不躁，水到渠成。' },
+        { level: '上上', text: '紫氣東來，祥雲瑞靄，此數當旺，鴻運當頭。', sub: '天時地利，人和俱備。' }
+        
     ];
 
     function getRandomFortune() {
@@ -571,7 +606,7 @@
         const area = document.getElementById('fortuneArea');
         area.classList.remove('hidden');
         document.getElementById('fortuneTitle').innerHTML =
-            `📜 第${String(Math.floor(Math.random() * 99) + 1).padStart(2, '0')}籤 <span class="seal">${fortune.level}</span>`;
+          `📜 第${String(Math.floor(Math.random() * 99) + 1).padStart(2, '0')}籤 ${fortune.level} — ${fortune.sub}`;
         
         // 強制兩行：將籤文分為「前半」同「後半」
         const text = fortune.text;
@@ -601,9 +636,9 @@
     function displayRatings() {
         const row = document.getElementById('ratingRow');
         row.classList.remove('hidden');
-        document.getElementById('rating1').textContent = Math.floor(Math.random() * 20) + 75;
-        document.getElementById('rating2').textContent = Math.floor(Math.random() * 20) + 75;
-        document.getElementById('rating3').textContent = Math.floor(Math.random() * 20) + 75;
+        document.getElementById('rating1').textContent = Math.floor(Math.random() * 40) + 60;
+        document.getElementById('rating2').textContent = Math.floor(Math.random() * 40) + 60;
+        document.getElementById('rating3').textContent = Math.floor(Math.random() * 40) + 60;
     }
 
     // ===== 記錄去 Google Sheet（淨係 send C 同 D） =====
@@ -639,37 +674,52 @@
     }
 
     // ===== 求籤主流程 =====
-    function handleDraw() {
+    async function handleDraw() {
         if (isRevealed) {
             showToast('🙏 今日已求籤，聽日再嚟');
             return;
         }
 
+        const drawBtn = document.getElementById('drawBtn');
         const container = document.getElementById('numbersDisplay');
         const shareBtn = document.getElementById('shareBtn');
 
-        container.classList.add('shake');
+        // 避免重複點擊
+        drawBtn.disabled = true;
 
-        setTimeout(() => {
-            container.classList.remove('shake');
+        try {
+            // 1. 先去 API 撈最新比重
+            await fetchLatestWeights();
 
-            const numbers = weightedSample();
-            const fortune = getRandomFortune();
+            // 2. 確定有比重數據先開始搖籤
+            container.classList.add('shake');
 
-            displayNumbers(numbers);
-            displayFortune(fortune);
-            displayRatings();
+            setTimeout(() => {
+                container.classList.remove('shake');
 
-            // 記錄去 Google Sheet
-            saveToGoogleSheet(numbers, fortune);
+                const numbers = weightedSample();
+                const fortune = getRandomFortune();
 
-            isRevealed = true;
-            shareBtn.disabled = false;
-            showToast('🙏 靈籤已降');
+                displayNumbers(numbers);
+                displayFortune(fortune);
+                displayRatings();
 
-            localStorage.setItem('mark6_today', new Date().toISOString().slice(0, 10));
+                // 記錄去 Google Sheet
+                saveToGoogleSheet(numbers, fortune);
 
-        }, 500);
+                isRevealed = true;
+                shareBtn.disabled = false;
+                showToast('🙏 靈籤已降');
+
+                localStorage.setItem('mark6_today', new Date().toISOString().slice(0, 10));
+
+            }, 500);
+
+        } catch (err) {
+            // 3. API 讀唔到/失敗，跳出指定 Toast 提示，並解鎖按鈕
+            showToast('神明外出游玩，不宜賭博。');
+            drawBtn.disabled = false;
+        }
     }
 
     // ===== 分享 =====
