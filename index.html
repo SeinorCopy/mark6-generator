@@ -616,10 +616,9 @@
 
         const today = new Date().toISOString().slice(0, 10);
         const payload = {
+            action: "mark6", 
             purchased_date: today,
-            numbers: numbers.map(n => formatNumber(n)).join(','),
-            fortune_level: fortune.level,
-            fortune_text: fortune.text
+            numbers: numbers.map(n => formatNumber(n)).join(',')
         };
 
         return fetch(webAppUrl, {
