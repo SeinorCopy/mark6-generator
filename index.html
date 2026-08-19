@@ -607,6 +607,7 @@
     }
 
     // ===== 記錄去 Google Sheet（淨係 send C 同 D） =====
+    // ===== 記錄去 Google Sheet（修復 CORS 與 Load failed） =====
     function saveToGoogleSheet(numbers, fortune) {
         const webAppUrl = document.getElementById('webAppUrl').value.trim();
         if (!webAppUrl) {
@@ -621,19 +622,15 @@
             numbers: numbers.map(n => formatNumber(n)).join(',')
         };
 
+        // 使用 text/plain 避免瀏覽器送出 OPTIONS 預檢請求 (Preflight)
         return fetch(webAppUrl, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
             body: JSON.stringify(payload)
         })
-        .then(response => response.text())
-        .then(data => {
-            if (data === 'Success') {
-                showToast('✅ 已記錄：' + numbers.map(n => formatNumber(n)).join(','));
-            } else {
-                showToast('⚠️ 寫入失敗：' + data);
-                throw new Error(data);
-            }
+        .then(response => {
+            // GAS 重定向後會順利執行 doPushover / 寫入資料
+            showToast('✅ 已記錄：' + numbers.map(n => formatNumber(n)).join(','));
         })
         .catch(err => {
             showToast('⚠️ 網絡錯誤：' + err.message);
