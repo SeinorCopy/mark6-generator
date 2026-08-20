@@ -538,33 +538,45 @@
 
     // ===== 加權抽樣(使用動態抓取的 WEIGHTS) =====
     function weightedSample() {
-        const numbers = Object.keys(WEIGHTS).map(Number);
-        
-        // 如果抓不到數據的防呆機制
-        if (numbers.length === 0) {
-            showToast('⚠️ 未能載入比重數據');
-            return [];
+      const weights = getWeights();  // 你個權重 JSON
+      
+      // 1. 將號碼分為 Top 20 同 Others
+      const sorted = Object.entries(weights).sort((a, b) => b[1] - a[1]);
+      const top20 = sorted.slice(0, 20).map(([num]) => Number(num));
+      const others = sorted.slice(20).map(([num]) => Number(num));
+      
+      // 2. 由 Top 20 抽 4 個（用權重抽）
+      const selected = [];
+      const selectedTop20 = weightedPick(top20, weights, 4);
+      selected.push(...selectedTop20);
+      
+      // 3. 由 Others 抽 2 個（用權重抽）
+      const selectedOthers = weightedPick(others, weights, 2);
+      selected.push(...selectedOthers);
+      
+      return selected.sort((a, b) => a - b);
+    }
+    
+    // 輔助 function：由指定號碼池抽 N 個（用權重）
+    function weightedPick(pool, weights, count) {
+      const result = [];
+      const remaining = [...pool];
+      let totalWeight = remaining.reduce((sum, num) => sum + weights[num], 0);
+      
+      for (let i = 0; i < count; i++) {
+        let rand = Math.random() * totalWeight;
+        let cumSum = 0;
+        for (let j = 0; j < remaining.length; j++) {
+          cumSum += weights[remaining[j]];
+          if (rand <= cumSum) {
+            result.push(remaining[j]);
+            totalWeight -= weights[remaining[j]];
+            remaining.splice(j, 1);
+            break;
+          }
         }
-
-        let totalWeight = numbers.reduce((sum, num) => sum + Number(WEIGHTS[num]), 0);
-        const selected = [];
-        const remaining = [...numbers];
-
-        for (let i = 0; i < 6; i++) {
-            let rand = Math.random() * totalWeight;
-            let cumSum = 0;
-            for (let j = 0; j < remaining.length; j++) {
-                const w = Number(WEIGHTS[remaining[j]]);
-                cumSum += w;
-                if (rand <= cumSum) {
-                    selected.push(remaining[j]);
-                    totalWeight -= w;
-                    remaining.splice(j, 1);
-                    break;
-                }
-            }
-        }
-        return selected.sort((a, b) => a - b);
+      }
+      return result;
     }
 
     // ===== 籤文庫（強制兩行） =====
