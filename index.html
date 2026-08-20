@@ -488,6 +488,7 @@
 //        "41": 41.80, "42": 50.70, "43": 47.20, "44": 55.10, "45": 54.90,
 //        "46": 49.30, "47": 42.90, "48": 46.50, "49": 51.80
 //    };
+    let WEIGHTS = {}; 
     const WEIGHTS_API_URL = "https://script.google.com/macros/s/AKfycbxWgRGUJaB4X9yYcRl3n0RYvJrKZfSN7FQy9U18Q_Z8g-EStUBrbHWpxsEpOn9B87EK/exec";
 
     async function fetchLatestWeights() {
@@ -498,8 +499,7 @@
             WEIGHTS = data.weights || data; 
         } catch (err) {
             console.error("無法取得線上比重，請檢查 API：", err);
-            showToast('⚠️ 獲取比重失敗，請重試');
-            throw err;
+            throw err; // 丟出錯誤讓 handleDraw catch 處理
         }
     }
 
@@ -538,46 +538,54 @@
 
     // ===== 加權抽樣(使用動態抓取的 WEIGHTS) =====
     function weightedSample() {
-      const weights = getWeights();  // 你個權重 JSON
-      
-      // 1. 將號碼分為 Top 20 同 Others
-      const sorted = Object.entries(weights).sort((a, b) => b[1] - a[1]);
-      const top20 = sorted.slice(0, 20).map(([num]) => Number(num));
-      const others = sorted.slice(20).map(([num]) => Number(num));
-      
-      // 2. 由 Top 20 抽 4 個（用權重抽）
-      const selected = [];
-      const selectedTop20 = weightedPick(top20, weights, 4);
-      selected.push(...selectedTop20);
-      
-      // 3. 由 Others 抽 2 個（用權重抽）
-      const selectedOthers = weightedPick(others, weights, 2);
-      selected.push(...selectedOthers);
-      
-      return selected.sort((a, b) => a - b);
-    }
+          const weights = WEIGHTS; // 👈 修復：原本寫 getWeights() 會報錯
     
-    // 輔助 function：由指定號碼池抽 N 個（用權重）
-    function weightedPick(pool, weights, count) {
-      const result = [];
-      const remaining = [...pool];
-      let totalWeight = remaining.reduce((sum, num) => sum + weights[num], 0);
-      
-      for (let i = 0; i < count; i++) {
-        let rand = Math.random() * totalWeight;
-        let cumSum = 0;
-        for (let j = 0; j < remaining.length; j++) {
-          cumSum += weights[remaining[j]];
-          if (rand <= cumSum) {
-            result.push(remaining[j]);
-            totalWeight -= weights[remaining[j]];
-            remaining.splice(j, 1);
-            break;
+          // 防呆：如果 API 冇回傳資料，直接返回空陣列
+          if (!weights || Object.keys(weights).length === 0) {
+              return [];
           }
+          
+          // 1. 將號碼分為 Top 20 同 Others
+          const sorted = Object.entries(weights).sort((a, b) => Number(b[1]) - Number(a[1]));
+          const top20 = sorted.slice(0, 20).map(([num]) => Number(num));
+          const others = sorted.slice(20).map(([num]) => Number(num));
+          
+          // 2. 由 Top 20 抽 4 個（用權重抽）
+          const selected = [];
+          const selectedTop20 = weightedPick(top20, weights, 4);
+          selected.push(...selectedTop20);
+          
+          // 3. 由 Others 抽 2 個（用權重抽）
+          const selectedOthers = weightedPick(others, weights, 2);
+          selected.push(...selectedOthers);
+          
+          return selected.sort((a, b) => a - b);
         }
-      }
-      return result;
-    }
+        
+        // 輔助 function：由指定號碼池抽 N 個（用權重）
+        function weightedPick(pool, weights, count) {
+          const result = [];
+          const remaining = [...pool];
+          let totalWeight = remaining.reduce((sum, num) => sum + (Number(weights[num]) || 0), 0);
+          
+          const actualCount = Math.min(count, remaining.length);
+    
+          for (let i = 0; i < actualCount; i++) {
+            let rand = Math.random() * totalWeight;
+            let cumSum = 0;
+            for (let j = 0; j < remaining.length; j++) {
+              const w = Number(weights[remaining[j]]) || 0;
+              cumSum += w;
+              if (rand <= cumSum || j === remaining.length - 1) {
+                result.push(remaining[j]);
+                totalWeight -= w;
+                remaining.splice(j, 1);
+                break;
+              }
+            }
+          }
+          return result;
+        }
 
     // ===== 籤文庫（強制兩行） =====
     const FORTUNES = [
