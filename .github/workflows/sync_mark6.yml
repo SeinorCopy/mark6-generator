@@ -1,14 +1,12 @@
-name: Mark6 Auto Sync
+name: Trigger Mark6 Check
 
 on:
-  schedule:
-    - cron: '45 13 * * 2,4,6'
-  workflow_dispatch:
+  workflow_dispatch: # 允許手動 Trigger 或外部 API 觸發
 
 jobs:
-  sync-job:
+  call-google-script:
     runs-on: ubuntu-latest
     steps:
-      - name: Call Google Apps Script
+      - name: Call Google Apps Script WebApp
         run: |
           curl -L -s "${{ secrets.MARK6_URL }}"
