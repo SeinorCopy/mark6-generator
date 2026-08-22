@@ -552,11 +552,11 @@
           
           // 2. 由 Top 20 抽 4 個（用權重抽）
           const selected = [];
-          const selectedTop20 = weightedPick(top20, weights, 4);
+          const selectedTop20 = weightedPick(top20, weights, 6);
           selected.push(...selectedTop20);
           
           // 3. 由 Others 抽 2 個（用權重抽）
-          const selectedOthers = weightedPick(others, weights, 2);
+          const selectedOthers = weightedPick(others, weights, 0);
           selected.push(...selectedOthers);
           
           return selected.sort((a, b) => a - b);
