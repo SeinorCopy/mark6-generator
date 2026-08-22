@@ -1,7 +1,9 @@
 name: Trigger Mark6 Check
 
 on:
-  workflow_dispatch: # 允許手動 Trigger 或外部 API 觸發
+  workflow_dispatch:
+  repository_dispatch:
+    types: [trigger_mark6] 
 
 jobs:
   call-google-script:
